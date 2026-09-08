@@ -21,6 +21,7 @@ import HomePage from "@/pages/HomePage";
 import CheckoutPage from "@/pages/CheckoutPage";
 import BillingHistoryPage from "@/pages/BillingHistoryPage";
 import AccountPage from "@/pages/AccountPage";
+import NewsPage from "@/pages/NewsPage";
 import RanksPage from "@/pages/RanksPage";
 import CardsPage from "@/pages/CardsPage";
 import SupportPage from "@/pages/SupportPage";
@@ -67,8 +68,14 @@ function Router() {
         <Route path="/order/:id" component={OrderDetailPageNew} />
         <Route path="/orders" component={OrdersPage} />
         <Route path="/checkout" component={CheckoutPage} />
-        <Route path="/billing" component={BillingHistoryPage} />
+        <Route path="/billing" component={DepositPage} />
+        <Route path="/billing/history" component={BillingHistoryPage} />
         <Route path="/account" component={AccountPage} />
+        <Route path="/account/update" component={AccountPage} />
+        <Route path="/account/password" component={AccountPage} />
+        <Route path="/account/backup" component={AccountPage} />
+        <Route path="/account/destroy" component={AccountPage} />
+        <Route path="/news" component={NewsPage} />
         <Route path="/ranks">{() => features.ranks ? <RanksPage /> : <Redirect to="/deposit" />}</Route>
         <Route path="/cards">{() => features.cards ? <CardsPage /> : <Redirect to="/deposit" />}</Route>
         <Route path="/routings"><Redirect to="/deposit" /></Route>

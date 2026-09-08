@@ -1,42 +1,92 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
-import { AlertTriangle, LogOut, Shield } from "lucide-react";
+import { Link, useLocation } from "wouter";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+
+function AccountSubnav() {
+  return (
+    <aside className="store-subnav">
+      {[
+        ["Information", "/account"],
+        ["Update Info", "/account/update"],
+        ["Change Password", "/account/password"],
+        ["Backup Code", "/account/backup"],
+        ["Destroy Account", "/account/destroy"],
+      ].map(([label, href]) => <Link key={href} href={href}><span className="store-subnav-item">• <span>{label}</span></span></Link>)}
+    </aside>
+  );
+}
 
 export default function AccountPage() {
   const { user, logout } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
-  const [pending, setPending] = useState(false);
+  const passwordMutation = useMutation({
+    mutationFn: () => apiRequest("PATCH", "/api/user/password", { currentPassword, newPassword }),
+    onSuccess: () => { setCurrentPassword(""); setNewPassword(""); setConfirmPassword(""); toast({ title: "Password updated" }); },
+    onError: (error: any) => toast({ title: "Unable to update password", description: error.message, variant: "destructive" }),
+  });
   const destroy = async () => {
     if (confirmation !== "DELETE MY ACCOUNT") return;
-    setPending(true);
     try {
       await apiRequest("DELETE", "/api/user/account", { confirmation });
-      toast({ title: "ACCOUNT DESTROYED", description: "Your account and associated data were permanently removed." });
       await logout();
       setLocation("/auth");
     } catch (error: any) {
-      toast({ title: "ACCOUNT DELETION FAILED", description: error.message, variant: "destructive" });
-    } finally {
-      setPending(false);
+      toast({ title: "Account deletion failed", description: error.message, variant: "destructive" });
     }
   };
+  const path = window.location.pathname;
+  const isDestroy = path.endsWith("/destroy");
+  const isPassword = path.endsWith("/password") || path === "/account";
   return (
-    <div className="pixel-page max-w-3xl space-y-5">
-      <div><p className="pixel-label">PLAYER PROFILE</p><h1 className="mt-3 text-xl text-white sm:text-2xl">ACCOUNT SETTINGS</h1></div>
-      <section className="pixel-panel bg-[#10215e] p-5">
-        <div className="flex items-center gap-3"><Shield className="h-6 w-6 text-[#43b94e]" /><div><p className="pixel-label">SIGNED IN AS</p><p className="mt-2 font-mono text-sm text-white">{user?.username}</p></div></div>
-        <button onClick={() => logout()} className="pixel-button mt-6 inline-flex items-center gap-2 !bg-[#ffe177] px-3 py-2 text-[8px]"><LogOut className="h-3 w-3" /> LOG OUT</button>
-      </section>
-      <section className="pixel-panel border-[#7f1d1d] bg-[#3a1421] p-5">
-        <div className="flex items-start gap-3"><AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-[#ff7779]" /><div><p className="pixel-label text-[#ff9b9d]">DANGER ZONE</p><h2 className="mt-3 text-sm text-white">DESTROY ACCOUNT</h2><p className="mt-3 max-w-xl font-mono text-[10px] leading-5 text-white/65">This permanently deletes your account, orders, wallet ledger, saved addresses, support records, and linked profile data. This cannot be undone.</p></div></div>
-        <label className="mt-5 block max-w-md"><span className="pixel-label text-[#ff9b9d]">TYPE DELETE MY ACCOUNT</span><input value={confirmation} onChange={event => setConfirmation(event.target.value)} className="pixel-input mt-2" placeholder="DELETE MY ACCOUNT" /></label>
-        <button onClick={destroy} disabled={confirmation !== "DELETE MY ACCOUNT" || pending} className="pixel-button mt-5 !bg-[#ee292b] px-4 py-3 text-[8px] !text-white disabled:opacity-40">{pending ? "DESTROYING..." : "PERMANENTLY DESTROY ACCOUNT"}</button>
-      </section>
+    <div className="store-page">
+      <div className="store-breadcrumb"><strong>Account</strong><span>⌂</span><span>·</span><span>{isDestroy ? "Destroy Account" : isPassword ? "Change Password" : "Information"}</span></div>
+      <div className="grid gap-5 lg:grid-cols-[1fr_200px]">
+        <section className="store-card overflow-hidden">
+          {isDestroy ? (
+            <>
+              <div className="store-card-title">Destroy Account</div>
+              <div className="space-y-4 p-4 sm:p-5">
+                <p className="text-sm leading-6 text-[#7d8091]">This permanently removes your account and related records. This action cannot be undone.</p>
+                <label className="block max-w-md text-xs">Type <strong>DELETE MY ACCOUNT</strong>
+                  <input value={confirmation} onChange={event => setConfirmation(event.target.value)} className="store-input mt-2" placeholder="DELETE MY ACCOUNT" />
+                </label>
+                <button onClick={destroy} disabled={confirmation !== "DELETE MY ACCOUNT"} className="store-button store-button-danger disabled:opacity-40">Destroy Account</button>
+              </div>
+            </>
+          ) : isPassword ? (
+            <>
+              <div className="store-card-title">Password</div>
+              <div className="space-y-4 p-4 sm:p-5">
+                <label className="store-label">Current password:<input value={currentPassword} onChange={event => setCurrentPassword(event.target.value)} type="password" placeholder="Enter Current Password" className="store-input mt-2" /></label>
+                <label className="store-label">New password:<input value={newPassword} onChange={event => setNewPassword(event.target.value)} type="password" placeholder="Enter New Password" className="store-input mt-2" /></label>
+                <label className="store-label">Confirm New password:<input value={confirmPassword} onChange={event => setConfirmPassword(event.target.value)} type="password" placeholder="Enter Confirm New Password" className="store-input mt-2" /></label>
+              </div>
+              <div className="border-t border-[#f0f0f5] p-4 sm:p-5">
+                <button onClick={() => passwordMutation.mutate()} disabled={passwordMutation.isPending || !currentPassword || newPassword.length < 6 || newPassword !== confirmPassword} className="store-button disabled:opacity-40">{passwordMutation.isPending ? "Submitting..." : "Submit"}</button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="store-card-title">Information</div>
+              <div className="grid gap-3 p-4 text-sm sm:grid-cols-2 sm:p-5">
+                <div><span className="store-muted">Username</span><p className="mt-1">{user?.username}</p></div>
+                <div><span className="store-muted">Email</span><p className="mt-1">{user?.email}</p></div>
+                <div><span className="store-muted">Balance</span><p className="mt-1">${((user?.balance ?? 0) / 100).toFixed(2)}</p></div>
+              </div>
+            </>
+          )}
+        </section>
+        <div className="lg:hidden"><AccountSubnav /></div>
+      </div>
+      <div className="mt-5 flex justify-end"><button onClick={() => logout()} className="text-xs text-[#6848d8] hover:underline">Sign Out</button></div>
     </div>
   );
 }

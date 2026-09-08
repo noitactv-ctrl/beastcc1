@@ -1,261 +1,132 @@
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { Filter, Loader2, ShoppingCart } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import { useCart } from "@/hooks/use-cart";
+import { useToast } from "@/hooks/use-toast";
 
-function flagFor(code: string) {
-  const normalized = String(code || "").trim().toUpperCase();
-  if (!/^[A-Z]{2}$/.test(normalized)) return "🌐";
-  return String.fromCodePoint(...normalized.split("").map(char => 0x1f1e6 + char.charCodeAt(0) - 65));
+function flagFor(value: string) {
+  const code = String(value || "").trim().toUpperCase();
+  if (!/^[A-Z]{2}$/.test(code)) return "🌐";
+  return String.fromCodePoint(...code.split("").map(char => 0x1f1e6 + char.charCodeAt(0) - 65));
 }
-
 function countryCode(card: any) {
   const value = card?.binData?.countryCode || card?.country;
   return /^[A-Za-z]{2}$/.test(String(value || "")) ? String(value).toUpperCase() : "";
 }
-
-function countryName(code: string) {
-  if (!code) return "Unknown";
-  try {
-    return new Intl.DisplayNames(["en"], { type: "region" }).of(code) || code;
-  } catch {
-    return code;
-  }
+function brand(card: any) {
+  return String(card?.binData?.scheme || card?.binData?.brand || "").toUpperCase();
 }
-
-function brandName(card: any) {
-  return String(card?.binData?.scheme || card?.binData?.brand || "Unknown").toUpperCase();
+function bank(card: any) {
+  return String(card?.binData?.bank || "").trim();
 }
-
-function typeName(card: any) {
-  return String(card?.binData?.type || "").replace(/[_-]+/g, " ").toUpperCase();
+function bin(card: any) {
+  return String(card?.binData?.bin || card?.cardNumber || "").replace(/\D/g, "").slice(0, 6);
 }
-
-function binOf(card: any) {
-  return String(card?.binData?.bin || card?.cardNumber || "").replace(/\D/g, "").slice(0, 6) || "——";
+function regionName(code: string) {
+  try { return code ? new Intl.DisplayNames(["en"], { type: "region" }).of(code) || code : "—"; } catch { return code || "—"; }
 }
 
 export default function CardsPage() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const qc = useQueryClient();
   const addCard = useCart(state => state.addCard);
-  const setBulkBundle = useCart(state => state.setBulkBundle);
-  const cartCards = useCart(state => state.cardItems);
-  const [base, setBase] = useState("all");
-  const [country, setCountry] = useState("all");
-  const [brand, setBrand] = useState("all");
-  const [minPrice, setMinPrice] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
-  const [minValidation, setMinValidation] = useState("all");
-  const [bulkMode, setBulkMode] = useState(false);
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
-
-  const { data: cards = [], isLoading } = useQuery<any[]>({
-    queryKey: ["/api/cards"],
-    refetchInterval: 15000,
-    refetchOnWindowFocus: true,
+  const [filters, setFilters] = useState({
+    base: "all", country: "all", brand: "all", level: "all", bank: "",
+    expMonth: "all", expYear: "all", zipcode: "", city: "", state: "", bin: "",
+    minPrice: "", maxPrice: "", minRate: "", maxRate: "",
   });
+  const { data: cards = [], isLoading } = useQuery<any[]>({ queryKey: ["/api/cards"], refetchInterval: 15000 });
   const { data: bases = [] } = useQuery<any[]>({ queryKey: ["/api/card-bases"] });
 
-  const countries = useMemo(
-    () => Array.from(new Set(cards.map(countryCode).filter(Boolean))).sort(),
-    [cards],
-  );
-  const brands = useMemo(
-    () => Array.from(new Set(cards.map(brandName).filter(brand => brand !== "UNKNOWN"))).sort(),
-    [cards],
-  );
-
-  const filteredCards = useMemo(() => cards.filter(card => {
-    const price = Number(card.price || 0);
-    const validation = Number(card.hrPercent ?? 80);
-    if (base !== "all" && String(card.baseId) !== base) return false;
-    if (country !== "all" && countryCode(card) !== country) return false;
-    if (brand !== "all" && brandName(card) !== brand) return false;
-    if (minPrice && price < Math.round(Number(minPrice) * 100)) return false;
-    if (maxPrice && price > Math.round(Number(maxPrice) * 100)) return false;
-    if (minValidation !== "all" && validation < Number(minValidation)) return false;
+  const values = useMemo(() => ({
+    countries: Array.from(new Set(cards.map(countryCode).filter(Boolean))).sort(),
+    brands: Array.from(new Set(cards.map(brand).filter(Boolean))).sort(),
+    banks: Array.from(new Set(cards.map(bank).filter(Boolean))).sort(),
+  }), [cards]);
+  const setFilter = (key: string, value: string) => setFilters(current => ({ ...current, [key]: value }));
+  const visibleCards = useMemo(() => cards.filter(card => {
+    const country = countryCode(card);
+    const price = Number(card.price || 0) / 100;
+    const rate = Number(card.hrPercent ?? 80);
+    const metadata = card.metadata || {};
+    if (filters.base !== "all" && String(card.baseId) !== filters.base) return false;
+    if (filters.country !== "all" && country !== filters.country) return false;
+    if (filters.brand !== "all" && brand(card) !== filters.brand) return false;
+    if (filters.level !== "all" && String(card.binData?.type || "").toUpperCase() !== filters.level) return false;
+    if (filters.bank && !bank(card).toLowerCase().includes(filters.bank.toLowerCase())) return false;
+    if (filters.bin && !bin(card).includes(filters.bin.replace(/\D/g, ""))) return false;
+    if (filters.city && !String(metadata.city || "").toLowerCase().includes(filters.city.toLowerCase())) return false;
+    if (filters.state && !String(metadata.state || "").toLowerCase().includes(filters.state.toLowerCase())) return false;
+    if (filters.zipcode && !String(metadata.zip || "").includes(filters.zipcode)) return false;
+    if (filters.minPrice && price < Number(filters.minPrice)) return false;
+    if (filters.maxPrice && price > Number(filters.maxPrice)) return false;
+    if (filters.minRate && rate < Number(filters.minRate)) return false;
+    if (filters.maxRate && rate > Number(filters.maxRate)) return false;
     return true;
-  }), [cards, base, country, brand, minPrice, maxPrice, minValidation]);
+  }), [cards, filters]);
 
-  const addSingleCard = (card: any) => {
-    addCard({
-      id: card.id,
-      bin: binOf(card),
-      brand: brandName(card),
-      type: typeName(card),
-      baseName: card.baseName || "Standard",
-      price: card.price,
-    });
-    toast({ title: "CARD ADDED", description: "Opening checkout so you can review your order." });
-    setLocation("/checkout");
-  };
+  const buyMutation = useMutation({
+    mutationFn: async (card: any) => {
+      addCard({ id: card.id, bin: bin(card), brand: brand(card), type: String(card.binData?.type || "").toUpperCase(), baseName: card.baseName || "Standard", price: card.price });
+    },
+    onSuccess: () => setLocation("/checkout"),
+    onError: (error: any) => toast({ title: "Unable to add card", description: error.message, variant: "destructive" }),
+  });
 
-  const toggleSelected = (card: any) => {
-    setSelectedIds(current => current.includes(card.id)
-      ? current.filter(id => id !== card.id)
-      : current.length >= 20 ? current : [...current, card.id]);
-  };
-
-  const addBundle = () => {
-    if (selectedIds.length !== 20) {
-      toast({ title: "SELECT 20 CARDS", description: "A bundle requires exactly 20 unique cards.", variant: "destructive" });
-      return;
-    }
-    const selected = cards.filter(card => selectedIds.includes(card.id));
-    const originalTotal = selected.reduce((sum, card) => sum + Number(card.price || 0), 0);
-    setBulkBundle({
-      cardIds: selected.map(card => card.id),
-      cards: selected.map(card => ({
-        id: card.id,
-        bin: binOf(card),
-        brand: brandName(card),
-        type: typeName(card),
-        baseName: card.baseName || "Standard",
-        price: card.price,
-      })),
-      originalTotal,
-      discountedTotal: Math.round(originalTotal / 2),
-    });
-    setSelectedIds([]);
-    setBulkMode(false);
-    setLocation("/checkout");
-  };
-
+  const reset = () => setFilters({ base: "all", country: "all", brand: "all", level: "all", bank: "", expMonth: "all", expYear: "all", zipcode: "", city: "", state: "", bin: "", minPrice: "", maxPrice: "", minRate: "", maxRate: "" });
+  const selectClass = "store-select";
+  const inputClass = "store-input";
   return (
-    <div className="pixel-page space-y-5">
-      <section className="pixel-panel bg-[#10276a] p-4 sm:p-5">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="pixel-label">CARD MARKET</p>
-            <h1 className="mt-3 text-xl text-white sm:text-2xl">FIND YOUR NEXT DROP</h1>
-            <p className="mt-3 max-w-2xl font-mono text-[10px] leading-5 text-white/55">
-              Browse verified inventory by the signals that matter. No personal card details are shown in the marketplace.
-            </p>
+    <div className="store-page">
+      <section className="store-card">
+        <div className="store-card-title">SEARCH</div>
+        <div className="grid gap-x-3 gap-y-3 p-4 md:grid-cols-3">
+          <label className="store-label">Base:<select className={`${selectClass} mt-1`} value={filters.base} onChange={e => setFilter("base", e.target.value)}><option value="all">Select</option>{bases.map((item: any) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+          <label className="store-label">Country:<select className={`${selectClass} mt-1`} value={filters.country} onChange={e => setFilter("country", e.target.value)}><option value="all">Select</option>{values.countries.map(code => <option key={code} value={code}>{regionName(code)}</option>)}</select></label>
+          <label className="store-label">Brand:<select className={`${selectClass} mt-1`} value={filters.brand} onChange={e => setFilter("brand", e.target.value)}><option value="all">Select</option>{values.brands.map(item => <option key={item}>{item}</option>)}</select></label>
+          <label className="store-label">Level (+0.1$):<select className={`${selectClass} mt-1`} value={filters.level} onChange={e => setFilter("level", e.target.value)}><option value="all">Select</option><option value="CREDIT">CREDIT</option><option value="DEBIT">DEBIT</option><option value="PREPAID">PREPAID</option></select></label>
+          <label className="store-label">Bank (+0.1$):<input className={`${inputClass} mt-1`} value={filters.bank} onChange={e => setFilter("bank", e.target.value)} placeholder="Bank Name" /></label>
+          <div className="grid grid-cols-2 gap-2"><label className="store-label">Exp Month:<select className={`${selectClass} mt-1`} value={filters.expMonth} onChange={e => setFilter("expMonth", e.target.value)}><option value="all">Select</option>{Array.from({ length: 12 }, (_, i) => <option key={i}>{String(i + 1).padStart(2, "0")}</option>)}</select></label><label className="store-label">Exp Year (+0.2$):<select className={`${selectClass} mt-1`} value={filters.expYear} onChange={e => setFilter("expYear", e.target.value)}><option value="all">Select</option><option>2026</option><option>2027</option><option>2028</option></select></label></div>
+          <label className="store-label">Zipcode (+0.2$):<input className={`${inputClass} mt-1`} value={filters.zipcode} onChange={e => setFilter("zipcode", e.target.value)} placeholder="80123, BL5BN" /></label>
+          <label className="store-label">City (+0.1$):<input className={`${inputClass} mt-1`} value={filters.city} onChange={e => setFilter("city", e.target.value)} placeholder="City" /></label>
+          <label className="store-label">State (+0.1$):<input className={`${inputClass} mt-1`} value={filters.state} onChange={e => setFilter("state", e.target.value)} placeholder="State" /></label>
+          <label className="store-label">Bin (+0.2$):<input className={`${inputClass} mt-1`} value={filters.bin} onChange={e => setFilter("bin", e.target.value)} placeholder="457714,453978" /></label>
+          <div className="store-label">Price:<div className="mt-1 grid grid-cols-2 gap-1"><input className={inputClass} value={filters.minPrice} onChange={e => setFilter("minPrice", e.target.value)} placeholder="MIN" /><input className={inputClass} value={filters.maxPrice} onChange={e => setFilter("maxPrice", e.target.value)} placeholder="MAX" /></div></div>
+          <div className="store-label">Valid Rate:<div className="mt-1 grid grid-cols-2 gap-1"><input className={inputClass} value={filters.minRate} onChange={e => setFilter("minRate", e.target.value)} placeholder="MIN" /><input className={inputClass} value={filters.maxRate} onChange={e => setFilter("maxRate", e.target.value)} placeholder="MAX" /></div></div>
+          <div className="col-span-full grid gap-2 pt-1 text-[10px] text-[#9294a1] sm:grid-cols-3">
+            {["DOB", "Phone", "Checker", "SSN", "Email", "Discount cards", "Last 4 SSN", "MMN", "VBV", "Do not show hidden cards"].map(label => <label key={label} className="flex items-center gap-2"><input type="checkbox" className="h-3.5 w-3.5 accent-[#6546d6]" />{label}</label>)}
           </div>
-          <button
-            onClick={() => { setBulkMode(value => !value); setSelectedIds([]); }}
-            className={`pixel-button flex items-center gap-2 px-3 py-3 text-[8px] ${bulkMode ? "!bg-[#ee292b] !text-white" : "!bg-[#43b94e] !text-white"}`}
-          >
-            <ShoppingCart className="h-3.5 w-3.5" />
-            {bulkMode ? `CANCEL · ${selectedIds.length}/20` : "BUILD 20-CARD BUNDLE"}
-          </button>
-        </div>
-        {bulkMode && (
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t-2 border-black/50 pt-3">
-            <p className="font-mono text-[10px] text-[#ffe177]">Select exactly 20 cards for 50% off each.</p>
-            <button onClick={addBundle} className="pixel-button !bg-[#ffe177] px-3 py-2 text-[8px]">
-              REVIEW BUNDLE
-            </button>
-          </div>
-        )}
-      </section>
-
-      <section className="pixel-panel bg-[#0b1744] p-3 sm:p-4">
-        <div className="mb-3 flex items-center gap-2">
-          <Filter className="h-4 w-4 text-[#ffe177]" />
-          <p className="pixel-label">FILTER INVENTORY</p>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-          <label className="space-y-1">
-            <span className="pixel-label text-[8px]">BASE</span>
-            <select value={base} onChange={event => setBase(event.target.value)} className="pixel-input h-10 py-2 text-[10px]">
-              <option value="all">All bases</option>
-              {bases.map((item: any) => <option key={item.id} value={item.id}>{item.name}</option>)}
-            </select>
-          </label>
-          <label className="space-y-1">
-            <span className="pixel-label text-[8px]">COUNTRY</span>
-            <select value={country} onChange={event => setCountry(event.target.value)} className="pixel-input h-10 py-2 text-[10px]">
-              <option value="all">All countries</option>
-              {countries.map(code => <option key={code} value={code}>{flagFor(code)} {countryName(code)}</option>)}
-            </select>
-          </label>
-          <label className="space-y-1">
-            <span className="pixel-label text-[8px]">BRAND</span>
-            <select value={brand} onChange={event => setBrand(event.target.value)} className="pixel-input h-10 py-2 text-[10px]">
-              <option value="all">All brands</option>
-              {brands.map(item => <option key={item} value={item}>{item}</option>)}
-            </select>
-          </label>
-          <label className="space-y-1">
-            <span className="pixel-label text-[8px]">MIN PRICE</span>
-            <input type="number" min="0" step="0.01" value={minPrice} onChange={event => setMinPrice(event.target.value)} placeholder="$0.00" className="pixel-input h-10 py-2 text-[10px]" />
-          </label>
-          <label className="space-y-1">
-            <span className="pixel-label text-[8px]">MAX PRICE</span>
-            <input type="number" min="0" step="0.01" value={maxPrice} onChange={event => setMaxPrice(event.target.value)} placeholder="No limit" className="pixel-input h-10 py-2 text-[10px]" />
-          </label>
-          <label className="space-y-1">
-            <span className="pixel-label text-[8px]">VALIDATION RATE</span>
-            <select value={minValidation} onChange={event => setMinValidation(event.target.value)} className="pixel-input h-10 py-2 text-[10px]">
-              <option value="all">Any rate</option>
-              <option value="90">90% and up</option>
-              <option value="80">80% and up</option>
-              <option value="70">70% and up</option>
-            </select>
-          </label>
+          <div className="col-span-full flex justify-end gap-2 pt-1"><button className="store-button" onClick={reset}>Reset</button><span className="self-center text-[10px] text-[#a1a3af]">{visibleCards.length} cards found</span></div>
         </div>
       </section>
 
-      <section className="pixel-panel overflow-hidden bg-[#0b1744]">
-        <div className="flex items-center justify-between border-b-[3px] border-black bg-[#1d3d93] px-4 py-3">
-          <p className="pixel-label text-white">{filteredCards.length} CARDS AVAILABLE</p>
-          <p className="font-mono text-[9px] text-white/55">BUY OPENS CHECKOUT</p>
+      <section className="store-card mt-5 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-[1120px] w-full border-collapse text-[10px]">
+            <thead><tr className="border-b border-[#ececf2] text-left uppercase text-[#8f91a0]">{["#", "BIN", "TYPE", "COUNTRY", "EXP", "NAME", "BANK", "LEVEL", "ZIPCODE", "STATE", "CITY", "PHONE", "OPTION", "BASE", "VALID RATE", "CHECKER", "PRICING"].map(label => <th key={label} className="whitespace-nowrap px-2 py-3 font-medium">{label}</th>)}</tr></thead>
+            <tbody>
+              {isLoading ? <tr><td colSpan={17} className="py-10 text-center text-[#a0a2ae]">Loading...</td></tr> : visibleCards.length === 0 ? <tr><td colSpan={17} className="py-10 text-center text-[#a0a2ae]">NOT FOUND</td></tr> : visibleCards.map((card, index) => {
+                const code = countryCode(card);
+                return <tr key={card.id} className="border-b border-[#f0f0f4] text-[#737687] hover:bg-[#fbfaff]">
+                  <td className="px-2 py-3">{index + 1}</td>
+                  <td className="px-2 py-3 font-mono text-[#6870bb]">{bin(card) || "—"}</td>
+                  <td className="px-2 py-3">{String(card.binData?.type || "—").toUpperCase()}</td>
+                  <td className="px-2 py-3 whitespace-nowrap">{flagFor(code)} {code || "—"}</td>
+                  <td className="px-2 py-3">—</td><td className="px-2 py-3">—</td>
+                  <td className="max-w-[130px] truncate px-2 py-3">{bank(card) || "—"}</td>
+                  <td className="px-2 py-3">{String(card.binData?.level || "—").toUpperCase()}</td><td className="px-2 py-3">—</td><td className="px-2 py-3">—</td><td className="px-2 py-3">—</td><td className="px-2 py-3">—</td>
+                  <td className="px-2 py-3"><button className="text-lg leading-none text-[#6042d2]" onClick={() => buyMutation.mutate(card)} aria-label="Buy card">•••</button></td>
+                  <td className="max-w-[100px] truncate px-2 py-3">{card.baseName || "—"}</td>
+                  <td className="px-2 py-3 text-[#7370c2]">{card.hrPercent ?? 80}%</td>
+                  <td className="px-2 py-3 text-[#76c7ba]">✓</td>
+                  <td className="px-2 py-3 font-semibold text-[#7a7ca0]">${(Number(card.price || 0) / 100).toFixed(2)}</td>
+                </tr>;
+              })}
+            </tbody>
+          </table>
         </div>
-        {isLoading ? (
-          <div className="flex justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-[#ffe177]" /></div>
-        ) : filteredCards.length === 0 ? (
-          <div className="px-4 py-16 text-center font-mono text-xs text-white/45">No cards match these filters.</div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[760px] border-collapse">
-              <thead>
-                <tr className="border-b-2 border-black/70 text-left">
-                  {bulkMode && <th className="px-3 py-3 pixel-label text-[8px]">SELECT</th>}
-                  <th className="px-3 py-3 pixel-label text-[8px]">BIN</th>
-                  <th className="px-3 py-3 pixel-label text-[8px]">BRAND</th>
-                  <th className="px-3 py-3 pixel-label text-[8px]">COUNTRY</th>
-                  <th className="px-3 py-3 pixel-label text-[8px]">BASE</th>
-                  <th className="px-3 py-3 pixel-label text-[8px]">VALIDATION</th>
-                  <th className="px-3 py-3 text-right pixel-label text-[8px]">PRICE</th>
-                  {!bulkMode && <th className="px-3 py-3 text-right pixel-label text-[8px]">ACTION</th>}
-                </tr>
-              </thead>
-              <tbody>
-                {filteredCards.map(card => {
-                  const code = countryCode(card);
-                  const selected = selectedIds.includes(card.id);
-                  const inCart = cartCards.some(item => item.id === card.id);
-                  return (
-                    <tr key={card.id} className={`border-b border-black/50 ${selected ? "bg-[#193f91]" : "hover:bg-white/5"}`}>
-                      {bulkMode && (
-                        <td className="px-3 py-3">
-                          <input type="checkbox" checked={selected} onChange={() => toggleSelected(card)} className="h-4 w-4 accent-[#ee292b]" />
-                        </td>
-                      )}
-                      <td className="px-3 py-3 font-mono text-xs font-bold text-white">{binOf(card)}</td>
-                      <td className="px-3 py-3 text-xs font-bold text-[#ffe177]">{brandName(card)}</td>
-                      <td className="px-3 py-3 text-xs text-white/75">{flagFor(code)} {countryName(code)}</td>
-                      <td className="px-3 py-3 text-xs text-white/65">{card.baseName || "Standard"}</td>
-                      <td className="px-3 py-3"><span className="pixel-status-yes">{card.hrPercent ?? 80}%</span></td>
-                      <td className="px-3 py-3 text-right font-mono text-xs font-bold text-white">${(Number(card.price || 0) / 100).toFixed(2)}</td>
-                      {!bulkMode && (
-                        <td className="px-3 py-3 text-right">
-                          <button onClick={() => addSingleCard(card)} disabled={inCart} className="pixel-button !bg-[#ee292b] px-3 py-2 text-[8px] !text-white disabled:opacity-40">
-                            {inCart ? "IN CART" : "BUY"}
-                          </button>
-                        </td>
-                      )}
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
       </section>
     </div>
   );

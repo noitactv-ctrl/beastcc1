@@ -237,8 +237,9 @@ export default function DepositPage() {
   }
 
   return (
-    <div className="pixel-page min-h-screen flex flex-col">
-      <div className="pixel-page flex-1 space-y-4">
+    <div className="store-page">
+      <div className="store-breadcrumb"><strong>Billing</strong><span>⌂</span><span>·</span><span>Deposit</span></div>
+      <div className="store-card">
         {cryptoInvoice ? (
           <CryptoPaymentPanel
             invoice={cryptoInvoice}
@@ -259,7 +260,7 @@ export default function DepositPage() {
         ) : manualResult ? (
           <ManualDepositPanel result={manualResult} onReset={() => { setManualResult(null); setSelectedOption(null); setAmountInput(""); }} />
         ) : (
-          <div className="pixel-panel space-y-4 bg-[#10215e] p-4 sm:p-5">
+          <div className="store-card space-y-4 p-4 sm:p-5">
             <div className="space-y-2">
               <p className="pixel-label">ENTER AMOUNT</p>
               <input
@@ -366,7 +367,6 @@ export default function DepositPage() {
         )}
 
       </div>
-
     </div>
   );
 }
