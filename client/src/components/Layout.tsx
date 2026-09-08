@@ -41,7 +41,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
     <div className="calm-shell min-h-screen bg-[#f7f8fc] text-[#303342]">
       <header className="sticky top-0 z-40 border-b-[3px] border-[#1b3d91] bg-white/95 shadow-[0_3px_0_#9aa9c7] backdrop-blur">
         <div className="mx-auto flex min-h-[56px] max-w-[1120px] items-center gap-3 px-3 lg:px-6">
-          <Link href="/" onClick={() => setMenuOpen(false)}><span className="pixel-logo-text shrink-0">LOOFY</span></Link>
           <nav className="hidden min-w-0 flex-1 items-center gap-1 overflow-x-auto md:flex">
             {visibleNav.map(item => (
               <Link key={item.href} href={item.href}>

@@ -647,15 +647,15 @@
   box-shadow: 0 2px 14px rgba(44, 48, 78, 0.045);
 }
 .calm-shell .pixel-button {
-  min-height: 2.25rem;
+  min-height: 2.5rem;
   border: 0;
   border-radius: 0.45rem;
   background: #5b5bd6;
   padding: 0.6rem 0.9rem;
   color: #fff;
   font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 650;
+  font-size: 0.82rem;
+  font-weight: 700;
   box-shadow: none;
   text-shadow: none;
   transition: background-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
@@ -689,7 +689,7 @@
 .calm-shell .filter-field-label {
   color: #6d6f80;
   font-family: 'Inter', sans-serif;
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0;
 }
@@ -706,8 +706,8 @@
   padding: 0 0.7rem;
   color: #6b6e7e;
   font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 .calm-shell .game-nav-link:hover,
 .calm-shell .game-nav-link-active {
@@ -716,15 +716,15 @@
   color: #5855c8;
 }
 .calm-shell .game-top-action {
-  min-height: 2rem;
+  min-height: 2.25rem;
   border: 1px solid #ececf2;
   border-radius: 0.45rem;
   background: #fff;
   padding: 0 0.6rem;
   color: #5b5d6d;
   font-family: 'Inter', sans-serif;
-  font-size: 0.7rem;
-  font-weight: 500;
+  font-size: 0.75rem;
+  font-weight: 600;
   box-shadow: none;
 }
 .calm-shell .game-top-action:hover {
@@ -850,6 +850,9 @@
 .calm-shell header {
   border-color: #ececf2 !important;
   box-shadow: 0 1px 8px rgba(44, 48, 78, 0.04) !important;
+}
+.calm-shell header > div {
+  min-height: 4rem;
 }
 
 @media (min-width: 640px) {
