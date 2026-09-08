@@ -981,3 +981,245 @@
   }
 }
 
+/* Hacker terminal theme. The code texture is intentionally low contrast so
+   it adds atmosphere without competing with marketplace content. */
+.hacker-shell,
+.hacker-shell * {
+  font-family: 'Inter', sans-serif;
+}
+.hacker-shell {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: #050b0a;
+  color: #d8ffe6;
+}
+.hacker-shell::before {
+  position: fixed;
+  z-index: -2;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  background-color: #050b0a;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='260' viewBox='0 0 420 260'%3E%3Crect width='420' height='260' fill='%23050b0a'/%3E%3Cg fill='%2362ff9a' font-family='monospace' font-size='12' opacity='.78'%3E%3Ctext x='14' y='28'%3E%26gt; session.init()%3C/text%3E%3Ctext x='36' y='56'%3E01001011 01100101 01111001%3C/text%3E%3Ctext x='12' y='84'%3Econst access = true;%3C/text%3E%3Ctext x='58' y='112'%3E%26gt; packet.decrypt()%3C/text%3E%3Ctext x='18' y='140'%3E01110010 01100101 01100001%3C/text%3E%3Ctext x='42' y='168'%3Eawait secureChannel();%3C/text%3E%3Ctext x='10' y='196'%3E%26gt; system.online%3C/text%3E%3Ctext x='64' y='224'%3E0x7F 0xA1 0xC4 0x09%3C/text%3E%3C/g%3E%3C/svg%3E"),
+    repeating-linear-gradient(180deg, rgba(98, 255, 154, 0.035) 0, rgba(98, 255, 154, 0.035) 1px, transparent 1px, transparent 4px);
+  background-size: 420px 260px, auto;
+  opacity: 0.24;
+}
+.hacker-shell::after {
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 0%, rgba(37, 115, 69, 0.17), transparent 42%);
+}
+.hacker-shell > header,
+.hacker-shell > main {
+  position: relative;
+  z-index: 1;
+}
+.hacker-shell h1,
+.hacker-shell h2,
+.hacker-shell h3,
+.hacker-shell h4,
+.hacker-shell h5,
+.hacker-shell h6 {
+  color: #e2ffea;
+  font-family: var(--font-mono);
+  letter-spacing: -0.02em;
+}
+.hacker-shell .pixel-page {
+  max-width: 70rem;
+}
+.hacker-shell .pixel-panel,
+.hacker-shell .store-card {
+  border: 1px solid #1d4930;
+  border-radius: 0.5rem;
+  background: rgba(7, 17, 12, 0.94) !important;
+  box-shadow: 0 0 0 1px rgba(98, 255, 154, 0.025), 0 10px 30px rgba(0, 0, 0, 0.24);
+}
+.hacker-shell .store-card-title {
+  min-height: 2.75rem;
+  border-bottom: 1px solid #1d4930;
+  padding: 0.85rem 1rem;
+  color: #9dffba;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.hacker-shell .pixel-button {
+  min-height: 2.4rem;
+  border: 1px solid #5cf291;
+  border-radius: 0.35rem;
+  background: #123b24;
+  color: #baffcb;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 700;
+  box-shadow: 0 0 12px rgba(92, 242, 145, 0.08);
+  text-shadow: 0 0 8px rgba(92, 242, 145, 0.28);
+}
+.hacker-shell .pixel-button:hover {
+  background: #1b5a35;
+  box-shadow: 0 0 16px rgba(92, 242, 145, 0.16);
+  filter: none;
+  transform: translateY(-1px);
+}
+.hacker-shell .pixel-input,
+.hacker-shell .store-input,
+.hacker-shell .store-select {
+  min-height: 2.35rem;
+  border: 1px solid #285a3a;
+  border-radius: 0.35rem;
+  background: #07130d !important;
+  color: #d8ffe6;
+  font-family: var(--font-mono);
+  box-shadow: inset 0 0 0 1px rgba(98, 255, 154, 0.025);
+}
+.hacker-shell .pixel-input:focus,
+.hacker-shell .store-input:focus,
+.hacker-shell .store-select:focus {
+  border-color: #5cf291;
+  background: #091a10 !important;
+  box-shadow: 0 0 0 3px rgba(92, 242, 145, 0.1);
+}
+.hacker-shell .pixel-input::placeholder,
+.hacker-shell .store-input::placeholder {
+  color: #5e8c6d;
+}
+.hacker-shell .pixel-label,
+.hacker-shell .filter-field-label,
+.hacker-shell .store-label {
+  color: #7ee99a;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.hacker-shell .game-nav-link,
+.hacker-shell .game-top-action,
+.hacker-shell .game-mobile-link {
+  border: 1px solid #1d4930;
+  border-radius: 0.35rem;
+  background: rgba(7, 17, 12, 0.88);
+  color: #91b99d;
+  font-family: var(--font-mono);
+}
+.hacker-shell .game-nav-link {
+  min-height: 34px;
+  font-size: 0.73rem;
+}
+.hacker-shell .game-top-action {
+  min-height: 2.25rem;
+  color: #a7d5b5;
+}
+.hacker-shell .game-nav-link:hover,
+.hacker-shell .game-nav-link-active,
+.hacker-shell .game-top-action:hover,
+.hacker-shell .game-mobile-link-active {
+  border-color: #5cf291;
+  background: #10341f;
+  color: #baffcb;
+}
+.hacker-shell .game-mobile-link {
+  display: flex;
+  min-height: 40px;
+  align-items: center;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.76rem;
+}
+.hacker-shell header {
+  border-color: #27643d !important;
+  background: rgba(4, 13, 8, 0.94) !important;
+  box-shadow: 0 1px 0 rgba(98, 255, 154, 0.12), 0 8px 24px rgba(0, 0, 0, 0.25) !important;
+}
+.hacker-shell header nav {
+  background: transparent;
+}
+.hacker-shell aside {
+  border-color: #1d4930 !important;
+  background: #07110c !important;
+}
+.hacker-shell [class~="text-white"] {
+  color: #d8ffe6 !important;
+}
+.hacker-shell [class*="text-white/"] {
+  color: #83ad91 !important;
+}
+.hacker-shell [class*="text-[#abbceb]"],
+.hacker-shell [class*="text-[#c5d6ff]"] {
+  color: #79b38b !important;
+}
+.hacker-shell [class*="text-[#ffe177]"],
+.hacker-shell [class*="text-[#fff0c5]"] {
+  color: #7df6a0 !important;
+}
+.hacker-shell [class*="text-[#72df7c]"] {
+  color: #75f6a0 !important;
+}
+.hacker-shell [class*="border-black"],
+.hacker-shell [class*="border-[#0a1021]"],
+.hacker-shell [class*="border-[#080f2c]"],
+.hacker-shell [class*="border-[#0e1b4e]"] {
+  border-color: #1d4930 !important;
+}
+.hacker-shell [class*="border-[2px]"],
+.hacker-shell [class*="border-[3px]"],
+.hacker-shell [class~="border-2"],
+.hacker-shell [class~="border-3"] {
+  border-width: 1px !important;
+}
+.hacker-shell [class*="bg-[#f7f8fc]"],
+.hacker-shell [class*="bg-white"],
+.hacker-shell [class*="bg-[#fff]"],
+.hacker-shell [class*="bg-[#fafaff]"] {
+  background-color: #07110c !important;
+}
+.hacker-shell [class*="bg-[#10215e]"],
+.hacker-shell [class*="bg-[#0a1645]"],
+.hacker-shell [class*="bg-[#0b1849]"],
+.hacker-shell [class*="bg-[#152d75]"],
+.hacker-shell [class*="bg-[#17337d]"],
+.hacker-shell [class*="bg-[#18296d]"],
+.hacker-shell [class*="bg-[#19377e]"],
+.hacker-shell [class*="bg-[#1d3d93]"],
+.hacker-shell [class*="bg-[#030303]"],
+.hacker-shell [class*="bg-[#050505]"],
+.hacker-shell [class*="bg-[#070d25]"],
+.hacker-shell [class*="bg-[#08143c]"] {
+  background-color: #091a10 !important;
+}
+.hacker-shell [class*="bg-[#ffe1aa]"],
+.hacker-shell [class*="bg-[#fff4dc]"],
+.hacker-shell [class*="bg-[#fff0c5]"] {
+  background-color: #0a2113 !important;
+}
+.hacker-shell [class*="bg-[#43b94e]"] {
+  background-color: #176b38 !important;
+}
+.hacker-shell [class*="bg-[#ee292b]"] {
+  background-color: #8e2f3b !important;
+}
+.hacker-shell [class*="shadow-["] {
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.24) !important;
+}
+.hacker-shell .store-check {
+  border-color: #56d98a;
+  background: #092217;
+  color: #7df6a0;
+}
+.hacker-shell .store-buy-button {
+  border-color: #397650;
+  background: #091a10;
+  color: #7df6a0;
+}
+.hacker-shell .store-buy-button:hover {
+  border-color: #5cf291;
+  background: #10341f;
+}
+

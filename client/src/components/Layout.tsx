@@ -38,7 +38,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     (href === "/cards" && location.startsWith("/product/"));
 
   return (
-    <div className="calm-shell min-h-screen bg-[#f7f8fc] text-[#303342]">
+    <div className="hacker-shell min-h-screen bg-[#050b0a] text-[#d8ffe6]">
       <header className="sticky top-0 z-40 border-b-[3px] border-[#1b3d91] bg-white/95 shadow-[0_3px_0_#9aa9c7] backdrop-blur">
         <div className="mx-auto flex min-h-[56px] max-w-[1120px] items-center gap-3 px-3 lg:px-6">
           <button className="game-top-action md:hidden" onClick={() => setMenuOpen(open => !open)} aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen}>
