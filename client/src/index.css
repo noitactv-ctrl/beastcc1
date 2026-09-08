@@ -463,4 +463,143 @@
 .game-top-action:hover {
   background: #fff0c5;
 }
+.game-mobile-link {
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  border: 2px solid #c9d3e7;
+  background: #fff;
+  padding: 0.65rem 0.75rem;
+  color: #263a70;
+  font-family: var(--font-pixel);
+  font-size: 0.52rem;
+}
+.game-mobile-link-active {
+  border-color: #1b3d91;
+  background: #e8efff;
+  color: #1b3d91;
+}
+.game-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 2px solid #27823e;
+  background: #e9f8ec;
+  padding: 0.28rem 0.45rem;
+  color: #247237;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.filter-field-label {
+  display: block;
+  color: #52627f;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+/* White pixel theme: retain the chunky game borders and shadows, but make
+   the storefront readable and light on every viewport. */
+.white-shell {
+  color: #24304a;
+}
+.white-shell .pixel-panel {
+  border-color: #182b62;
+  background-color: #fff !important;
+  box-shadow: 5px 5px 0 rgba(35, 51, 92, 0.22), inset 0 1px 0 rgba(27, 61, 145, 0.12);
+}
+.white-shell .pixel-label {
+  color: #1d469f;
+  letter-spacing: 0.03em;
+}
+.white-shell .filter-field-label {
+  color: #43557a;
+}
+.white-shell .pixel-input {
+  border-color: #182b62;
+  background: #fff;
+  color: #1e2c4a;
+  box-shadow: 2px 2px 0 #a9b6d1;
+}
+.white-shell .pixel-input::placeholder {
+  color: #72809b;
+}
+.white-shell .pixel-input:focus {
+  background: #f4f7ff;
+  border-color: #1b3d91;
+}
+.white-shell .game-nav-link {
+  color: #435171;
+}
+.white-shell .game-nav-link:hover {
+  border-color: #1b3d91;
+  background: #e8efff;
+  color: #1b3d91;
+}
+.white-shell .game-nav-link-active {
+  border-color: #1b3d91;
+  background: #1b3d91;
+  color: #fff;
+}
+.white-shell .game-top-action {
+  border-color: #182b62;
+  background: #fff;
+  color: #233d7c;
+  box-shadow: 2px 2px 0 #a9b6d1;
+}
+.white-shell .game-top-action:hover {
+  background: #e8efff;
+}
+.white-shell [class*="bg-[#10215e]"],
+.white-shell [class*="bg-[#142d78]"],
+.white-shell [class*="bg-[#0a1645]"],
+.white-shell [class*="bg-[#0b1849]"],
+.white-shell [class*="bg-[#152d75]"],
+.white-shell [class*="bg-[#18296d]"],
+.white-shell [class*="bg-[#19377e]"],
+.white-shell [class*="bg-[#1d3d93]"],
+.white-shell [class*="bg-[#030303]"],
+.white-shell [class*="bg-[#050505]"],
+.white-shell [class*="bg-[#070d25]"],
+.white-shell [class*="bg-[#111]"] {
+  background-color: #fff !important;
+}
+.white-shell [class*="bg-[#08143c]"] {
+  background-color: #fff !important;
+}
+.white-shell [class*="text-white/"] {
+  color: rgba(36, 48, 74, 0.65) !important;
+}
+.white-shell [class~="text-white"] {
+  color: #24304a !important;
+}
+.white-shell [class*="text-[#abbceb]"] {
+  color: #5e6d88 !important;
+}
+.white-shell [class*="text-[#ffe177]"] {
+  color: #1f4fa8 !important;
+}
+.white-shell [class*="text-[#72df7c]"] {
+  color: #247237 !important;
+}
+.white-shell [class*="border-black"] {
+  border-color: #182b62 !important;
+}
+.white-shell .pixel-button[class*="!text-white"],
+.white-shell .pixel-button [class~="text-white"] {
+  color: #fff !important;
+}
+.white-shell [class*="bg-[#ee292b]"] {
+  background-color: #e32931 !important;
+}
+.white-shell [class*="bg-[#43b94e]"] {
+  background-color: #2f9b45 !important;
+}
+.white-shell .game-check {
+  background: #e9f8ec !important;
+  color: #247237 !important;
+}
 
