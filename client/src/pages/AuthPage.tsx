@@ -240,7 +240,7 @@ export default function AuthPage() {
   if (user) return <Redirect to="/" />;
 
   return (
-    <div className="white-shell pixel-shell min-h-screen flex flex-col bg-[#f5f7fb]">
+    <div className="calm-shell min-h-screen flex flex-col bg-[#f7f8fc]">
       <div className="min-h-screen flex flex-col items-center justify-center px-5 py-10">
         <div className="w-full max-w-[380px] border-[3px] border-black bg-[#10215e] p-6 shadow-[5px_5px_0_#000]">
           {tab === "login"

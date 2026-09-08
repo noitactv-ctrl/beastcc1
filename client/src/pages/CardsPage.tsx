@@ -58,7 +58,7 @@ export default function CardsPage() {
     toast({ title: alreadyInCart ? "ALREADY IN CART" : "ADDED TO CART", description: `${cardBrand(card)} ${cardBin(card)} · REFUNDABLE` });
     if (checkout) setLocation("/checkout");
   };
-  const selectClass = "pixel-input mt-2 h-11 w-full min-w-0 text-xs";
+  const selectClass = "store-select mt-1 h-10 w-full min-w-0";
 
   const cardDetails = (card: any, index: number, compact = false) => {
     const code = countryCode(card);
@@ -89,7 +89,7 @@ export default function CardsPage() {
           <div className="filter-field-label">VALIDATION RATE<div className="mt-2 grid grid-cols-2 gap-2"><input className="pixel-input h-11 min-w-0 text-xs" inputMode="numeric" value={filters.minRate} onChange={e => setFilter("minRate", e.target.value)} placeholder="MIN %" /><input className="pixel-input h-11 min-w-0 text-xs" inputMode="numeric" value={filters.maxRate} onChange={e => setFilter("maxRate", e.target.value)} placeholder="MAX %" /></div></div>
         </div>
       </section>
-      <section className="hidden overflow-hidden border-[3px] border-black bg-[#10215e] md:block">
+        <section className="hidden overflow-hidden border-[3px] border-black bg-[#10215e] md:block">
         <div className="overflow-x-auto"><table className="min-w-[1120px] w-full border-collapse text-xs"><thead><tr className="border-b-[3px] border-black text-left text-[#abbceb]">{["#", "BRAND", "BIN", "TYPE", "COUNTRY", "BASE", "VALID RATE", "REFUNDABLE", "PRICE", "ADD TO CART"].map(label => <th key={label} className="whitespace-nowrap px-3 py-3 font-semibold">{label}</th>)}</tr></thead><tbody>{isLoading ? <tr><td colSpan={10} className="py-10 text-center font-mono text-xs text-[#abbceb]">LOADING...</td></tr> : visibleCards.length === 0 ? <tr><td colSpan={10} className="py-10 text-center font-mono text-xs text-[#abbceb]">NO CARDS FOUND</td></tr> : visibleCards.map((card, index) => cardDetails(card, index))}</tbody></table></div>
       </section>
       <section className="space-y-3 md:hidden">{isLoading ? <div className="pixel-panel bg-[#10215e] py-10 text-center font-mono text-xs text-[#abbceb]">LOADING...</div> : visibleCards.length === 0 ? <div className="pixel-panel bg-[#10215e] py-10 text-center font-mono text-xs text-[#abbceb]">NO CARDS FOUND</div> : visibleCards.map((card, index) => cardDetails(card, index, true))}</section>

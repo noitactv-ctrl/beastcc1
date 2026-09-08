@@ -38,14 +38,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
     (href === "/cards" && location.startsWith("/product/"));
 
   return (
-    <div className="white-shell pixel-shell min-h-screen bg-[#f5f7fb] text-[#24304a]">
+    <div className="calm-shell min-h-screen bg-[#f7f8fc] text-[#303342]">
       <header className="sticky top-0 z-40 border-b-[3px] border-[#1b3d91] bg-white/95 shadow-[0_3px_0_#9aa9c7] backdrop-blur">
         <div className="mx-auto flex min-h-[56px] max-w-[1120px] items-center gap-3 px-3 lg:px-6">
-          <Link href="/" onClick={() => setMenuOpen(false)}><span className="pixel-logo-text shrink-0">BEASTCC</span></Link>
+          <Link href="/" onClick={() => setMenuOpen(false)}><span className="pixel-logo-text shrink-0">LOOFY</span></Link>
           <nav className="hidden min-w-0 flex-1 items-center gap-1 overflow-x-auto md:flex">
             {visibleNav.map(item => (
               <Link key={item.href} href={item.href}>
-                <span className={`game-nav-link ${isActive(item.href) ? "game-nav-link-active" : ""}`}>
+                  <span className={`game-nav-link ${isActive(item.href) ? "game-nav-link-active" : ""}`}>
                   {item.label}
                 </span>
               </Link>
@@ -78,7 +78,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
         {menuOpen && (
-          <nav className="border-t-2 border-[#d7deec] bg-[#f7f9fd] p-3 md:hidden">
+          <nav className="border-t border-[#ececf2] bg-white p-3 md:hidden">
             <div className="grid grid-cols-2 gap-2">
               {visibleNav.map(item => (
                 <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)}>
