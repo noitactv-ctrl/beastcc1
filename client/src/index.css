@@ -646,6 +646,15 @@
   background: #fff !important;
   box-shadow: 0 2px 14px rgba(44, 48, 78, 0.045);
 }
+.calm-shell .store-card-title {
+  min-height: 2.75rem;
+  border-bottom: 1px solid #e9e8f1;
+  padding: 0.85rem 1rem;
+  color: #3f4050;
+  font-size: 0.84rem;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+}
 .calm-shell .pixel-button {
   min-height: 2.5rem;
   border: 0;
@@ -795,6 +804,12 @@
 .calm-shell [class*="border-[#0a1021]"] {
   border-color: #ececf2 !important;
 }
+.calm-shell [class*="border-[2px]"],
+.calm-shell [class*="border-[3px]"],
+.calm-shell [class~="border-2"],
+.calm-shell [class~="border-3"] {
+  border-width: 1px !important;
+}
 .calm-shell [class*="bg-[#0d0d0d]"],
 .calm-shell [class*="bg-[#111]"],
 .calm-shell [class*="bg-[#10215e]"],
@@ -814,6 +829,16 @@
 .calm-shell [class*="bg-[#ffe1aa]"],
 .calm-shell [class*="bg-[#fff4dc]"] {
   background-color: #fafaff !important;
+}
+.calm-shell [class*="bg-[#ffe177]"],
+.calm-shell [class*="bg-[#fff0c5]"],
+.calm-shell [class*="bg-[#e5be35]"] {
+  background-color: #f0efff !important;
+}
+.calm-shell [class*="hover:bg-[#ffe1aa]"]:hover,
+.calm-shell [class*="hover:bg-[#fff4dc]"]:hover,
+.calm-shell [class*="hover:bg-[#ffe177]"]:hover {
+  background-color: #e7e5ff !important;
 }
 .calm-shell [class*="bg-[#5f90ef]"],
 .calm-shell [class*="bg-[#17337d]"] {
