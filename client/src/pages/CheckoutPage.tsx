@@ -1,6 +1,5 @@
 import { Link, useLocation } from "wouter";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Check, ShoppingCart, Trash2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/hooks/use-cart";
 import { useToast } from "@/hooks/use-toast";
@@ -40,55 +39,66 @@ export default function CheckoutPage() {
   });
 
   return (
-    <div className="pixel-page max-w-4xl space-y-5">
-      <div className="flex items-center justify-between gap-3">
-        <div><p className="pixel-label">CHECKOUT</p><h1 className="mt-3 text-xl text-white sm:text-2xl">REVIEW YOUR DROP</h1></div>
-        <Link href="/cards"><span className="pixel-button inline-flex items-center gap-2 px-3 py-2 text-[8px]"><ArrowLeft className="h-3 w-3" /> KEEP SHOPPING</span></Link>
-      </div>
+    <div className="pixel-page max-w-5xl space-y-6">
+      <section className="store-card overflow-hidden">
+        <div className="store-card-title flex items-center justify-between gap-3">
+          <span>Cart {empty ? "(0 results)" : `(${cardItems.length + items.length} results)`}</span>
+          <Link href="/cards" className="text-xs font-semibold text-[#5b5bd6] hover:underline">Continue shopping</Link>
+        </div>
       {empty ? (
-        <div className="pixel-panel bg-[#10215e] p-12 text-center">
-          <ShoppingCart className="mx-auto h-9 w-9 text-[#ffe177]" />
-          <h2 className="mt-5 text-sm text-white">YOUR CART IS EMPTY</h2>
-          <p className="mt-3 font-mono text-[10px] text-white/50">Choose a card and it will appear here for review.</p>
-          <Link href="/cards"><span className="pixel-button mt-6 inline-block !bg-[#ee292b] px-4 py-3 text-[8px] !text-white">BROWSE CARDS</span></Link>
+        <div className="p-12 text-center">
+          <h2 className="text-lg font-bold text-[#555766]">Cart is empty</h2>
+          <p className="mt-3 text-sm text-[#9597a4]">Choose a card and it will appear here for review.</p>
+          <Link href="/cards"><span className="pixel-button mt-6 inline-flex">Browse cards</span></Link>
         </div>
       ) : (
-        <div className="grid gap-5 lg:grid-cols-[1fr_300px]">
-          <div className="pixel-panel overflow-hidden bg-[#10215e]">
+        <div>
+          <div className="border-t border-[#f0f0f4]">
             {bulkBundle && (
-              <div className="flex items-center justify-between gap-3 border-b-2 border-black p-4">
-                <div><p className="text-xs font-bold text-white">20-CARD BULK BUNDLE</p><p className="mt-1 font-mono text-[10px] text-[#43b94e]">50% discount applied</p></div>
-                <button onClick={clearBulkBundle} className="text-white/55 hover:text-white" aria-label="Remove bundle"><Trash2 className="h-4 w-4" /></button>
+              <div className="border-b border-[#ececf2] p-5">
+                <div className="flex items-center justify-between gap-3"><p className="text-sm font-bold text-[#3f4150]">20-card bulk bundle</p><button onClick={clearBulkBundle} className="text-xs font-semibold text-[#c96875] hover:underline">Remove</button></div>
+                <p className="mt-2 text-xs text-[#398660]">50% discount applied</p>
               </div>
             )}
             {cardItems.map(card => (
-              <div key={card.id} className="flex items-center justify-between gap-3 border-b-2 border-black p-4">
-                <div><p className="font-mono text-xs font-bold text-white">{card.bin}</p><p className="mt-1 text-[10px] text-[#ffe177]">{card.brand} · {card.baseName}</p><p className="mt-1 font-mono text-[9px] text-[#72df7c]">{card.refundable ? "REFUNDABLE" : "STANDARD"}</p></div>
-                <div className="flex items-center gap-3"><span className="font-mono text-xs text-white">${(card.price / 100).toFixed(2)}</span><button onClick={() => removeCard(card.id)} className="text-white/55 hover:text-white"><Trash2 className="h-4 w-4" /></button></div>
-              </div>
+              <article key={card.id} className="border-b border-[#ececf2]">
+                <div className="store-card-title">Info</div>
+                <dl className="text-sm">
+                  {[
+                    ["Brand", card.brand],
+                    ["BIN", card.bin || "—"],
+                    ["Card type", card.type || "—"],
+                    ["Country", card.country || "—"],
+                    ["Base", card.baseName || "—"],
+                    ["Refundable", card.refundable ? "Yes" : "No"],
+                  ].map(([label, value]) => <div key={label} className="grid grid-cols-[7.5rem_1fr] border-b border-[#f0f0f4] last:border-0"><dt className="border-r border-[#f0f0f4] px-5 py-3 text-[#77798a]">{label}</dt><dd className="px-5 py-3 font-semibold text-[#555766]">{value}</dd></div>)}
+                </dl>
+                <div className="store-card-title">Pricing</div>
+                <dl className="text-sm">
+                  <div className="grid grid-cols-[1fr_7.5rem] border-b border-[#f0f0f4]"><dt className="px-5 py-3 text-[#5b5bd6]">Card price</dt><dd className="border-l border-[#f0f0f4] px-5 py-3 font-semibold text-[#555766]">${(card.price / 100).toFixed(2)}</dd></div>
+                  <div className="grid grid-cols-[1fr_7.5rem]"><dt className="px-5 py-3 font-bold text-[#555766]">Purchase option</dt><dd className="border-l border-[#f0f0f4] px-5 py-3 font-bold text-[#555766]">Refundable</dd></div>
+                </dl>
+                <div className="store-card-title">Action</div>
+                <div className="flex flex-wrap items-center justify-between gap-4 px-5 py-4"><p className="text-sm text-[#555766]">Remove this card from your cart?</p><button onClick={() => removeCard(card.id)} className="text-sm font-semibold text-[#c96875] hover:underline">Remove card</button></div>
+              </article>
             ))}
             {items.map(item => (
-              <div key={item.variantId} className="flex items-center justify-between gap-3 border-b-2 border-black p-4">
-                <div><p className="text-xs font-bold text-white">{item.productName}</p><p className="mt-1 font-mono text-[10px] text-white/55">Qty {item.quantity} · {item.variantName}</p></div>
-                <div className="flex items-center gap-3"><span className="font-mono text-xs text-white">${(item.price * item.quantity / 100).toFixed(2)}</span><button onClick={() => removeItem(item.variantId)} className="text-white/55 hover:text-white"><Trash2 className="h-4 w-4" /></button></div>
+              <div key={item.variantId} className="border-b border-[#ececf2] p-5">
+                <div className="flex items-center justify-between gap-3"><div><p className="text-sm font-bold text-[#555766]">{item.productName}</p><p className="mt-1 text-xs text-[#858896]">Qty {item.quantity} · {item.variantName}</p></div><button onClick={() => removeItem(item.variantId)} className="text-sm font-semibold text-[#c96875] hover:underline">Remove</button></div>
               </div>
             ))}
-            <button onClick={clearCart} className="m-4 font-mono text-[10px] text-white/45 underline hover:text-white">Clear cart</button>
+            <button onClick={clearCart} className="m-5 text-sm font-semibold text-[#858896] underline hover:text-[#5b5bd6]">Clear cart</button>
           </div>
-          <aside className="pixel-panel h-fit bg-[#142d78] p-5">
-            <p className="pixel-label">ORDER SUMMARY</p>
-            <div className="mt-5 space-y-3 border-b-2 border-black/50 pb-4 font-mono text-[10px]">
-              <div className="flex justify-between text-white/60"><span>Items</span><span>{items.length + cardItems.length + (bulkBundle ? 20 : 0)}</span></div>
-              <div className="flex justify-between text-white/60"><span>Balance</span><span>${((user?.balance || 0) / 100).toFixed(2)}</span></div>
-            </div>
-            <div className="mt-4 flex items-end justify-between"><span className="pixel-label">TOTAL</span><span className="font-mono text-xl font-bold text-white">${(total / 100).toFixed(2)}</span></div>
-            <button onClick={() => checkout.mutate()} disabled={checkout.isPending} className="pixel-button mt-5 flex w-full items-center justify-center gap-2 !bg-[#43b94e] px-3 py-3 text-[8px] !text-white disabled:opacity-50">
-              {checkout.isPending ? "PLACING ORDER..." : <><Check className="h-3.5 w-3.5" /> CHECKOUT WITH BALANCE</>}
-            </button>
-            <p className="mt-3 text-center font-mono text-[9px] leading-4 text-white/45">Final price and availability are checked securely on the server.</p>
-          </aside>
+          <div className="store-card-title">Action</div>
+          <div className="p-5">
+            <p className="text-center text-sm font-bold text-[#3f4150]">Your balance: <span className="text-[#c96875]">${((user?.balance || 0) / 100).toFixed(2)}</span></p>
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-[#f0f0f4] pt-4 text-sm"><span className="font-semibold text-[#77798a]">Total</span><span className="text-lg font-bold text-[#3f4150]">${(total / 100).toFixed(2)}</span></div>
+            <button onClick={() => checkout.mutate()} disabled={checkout.isPending} className="pixel-button mt-5 w-full disabled:opacity-50">{checkout.isPending ? "Placing order..." : "Buy card"}</button>
+            <p className="mt-3 text-center text-xs leading-5 text-[#858896]">Final price and availability are checked securely on the server.</p>
+          </div>
         </div>
       )}
+      </section>
     </div>
   );
 }

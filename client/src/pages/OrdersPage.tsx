@@ -3,7 +3,7 @@ import { useOrders } from "@/hooks/use-orders";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
-import { Loader2, ReceiptText, Coins, Crown } from "lucide-react";
+import { Loader2, ReceiptText, Coins } from "lucide-react";
 import { Link } from "wouter";
 
 type TabType = "all" | "cards" | "ach";
@@ -181,11 +181,6 @@ export default function OrdersPage() {
           <Link href="/deposit">
             <span className="pixel-button inline-flex items-center gap-1.5 px-2.5 py-2 text-[8px]">
               <Coins className="h-3 w-3" /> ADD BALANCE
-            </span>
-          </Link>
-          <Link href="/ranks">
-            <span className="pixel-button inline-flex items-center gap-1.5 px-2.5 py-2 text-[8px]">
-              <Crown className="h-3 w-3" /> RANKS
             </span>
           </Link>
         </div>

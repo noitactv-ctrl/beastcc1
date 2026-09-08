@@ -17,6 +17,7 @@ export interface BulkCardItem {
   bin: string;
   brand: string;
   type: string;
+  country?: string;
   baseName: string;
   price: number;
   refundable?: boolean;
