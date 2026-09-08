@@ -1,43 +1,17 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
-import {
-  Coins, Crown, Menu, Ticket, CreditCard, ReceiptText, LogOut, ShieldCheck, Package, Gift,
-  House, WalletCards, UserRound,
-} from "lucide-react";
-import { useEffect, useState } from "react";
 import { useFeatureVisibility } from "@/hooks/use-feature-visibility";
 import { useQuery } from "@tanstack/react-query";
+import { ShoppingBasket, Layers3, UserRound, LogOut, Menu, X, ShieldCheck } from "lucide-react";
+import { useEffect, useState } from "react";
 
-type NavItem = {
-  href: string;
-  label: string;
-  icon: typeof Coins;
-  external?: boolean;
-};
-
-const navigation: { label: string; items: NavItem[] }[] = [
-  {
-    label: "MAIN",
-    items: [
-      { href: "/", label: "Home", icon: House },
-      { href: "/deposit", label: "Topup", icon: Coins },
-      { href: "/redeem", label: "Redeem", icon: Gift },
-      { href: "/orders", label: "Orders", icon: ReceiptText },
-      { href: "/billing", label: "Billing", icon: WalletCards },
-      { href: "/ranks", label: "Rank", icon: Crown },
-    ],
-  },
-  {
-    label: "SUPPORT",
-    items: [{ href: "/support", label: "Tickets", icon: Ticket }],
-  },
-  {
-    label: "SHOPPING",
-    items: [
-      { href: "/cards", label: "Buy Cards", icon: CreditCard },
-      { href: "/logs", label: "Buy Logs", icon: Package },
-    ],
-  },
+const primaryNav = [
+  { href: "/", label: "Dashboard" },
+  { href: "/cards", label: "Shop" },
+  { href: "/orders", label: "Order" },
+  { href: "/account", label: "Account" },
+  { href: "/billing", label: "Billing" },
+  { href: "/news", label: "News" },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -48,144 +22,75 @@ export function Layout({ children }: { children: React.ReactNode }) {
     staleTime: 15000,
   });
   const [location] = useLocation();
-  const [navOpen, setNavOpen] = useState(false);
-  useEffect(() => setNavOpen(false), [location]);
-  useEffect(() => {
-    document.body.style.overflow = navOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [navOpen]);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => setMobileOpen(false), [location]);
 
   if (location === "/auth") return <>{children}</>;
 
+  const visibleNav = primaryNav.filter(item => {
+    if (item.href === "/cards") return features.cards;
+    return true;
+  });
   const isActive = (href: string) =>
     location === href ||
-    (href === "/deposit" && location === "/") ||
-    (href === "/logs" && location.startsWith("/product/"));
-  const visibleNavigation = navigation
-    .map((group) => ({
-      ...group,
-      items: group.items.filter((item) => {
-        if (item.href === "/ranks") return features.ranks;
-        if (item.href === "/cards") return features.cards;
-         if (item.href === "/logs") return features.logs;
-        if (item.href === "/link") return creditBotStatus?.enabled !== false;
-        return true;
-      }),
-    }))
-    .filter((group) => group.items.length > 0);
-  const navContent = (
-    <>
-      <div className="px-3 pt-3 pb-2 space-y-3">
-        <Link href={features.cards ? "/cards" : "/deposit"}>
-          <div className="pixel-button sidebar-brand-button flex h-[48px] items-center justify-center !text-white">
-            <p className="pixel-logo-text">BEASTCC</p>
-          </div>
-        </Link>
-        <div className="flex h-[26px] items-center gap-1.5 border-[3px] border-[#0a1021] bg-[#5f90ef] px-2 text-white shadow-[2px_2px_0_#0a1021]">
-          <Coins className="h-3.5 w-3.5 shrink-0 text-[#ffe14f]" />
-          <span className="pixel-text truncate text-[9px] leading-none">{user?.username ?? "GUEST"}</span>
-        </div>
-      </div>
-
-      <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-4">
-        {visibleNavigation.map(group => (
-          <section key={group.label}>
-            <p className="pixel-text mb-1.5 px-1 text-[8px] leading-none text-[#ffe177] [text-shadow:2px_2px_0_#131e48]">{group.label}</p>
-            <div className="space-y-2">
-              {group.items.map(item => {
-                const content = (
-                  <div
-                    className={`pixel-button flex min-h-9 items-center gap-2 px-2.5 py-2 text-[9px] leading-none transition-colors ${
-                      !item.external && isActive(item.href) ? "!bg-[#ee292b] !text-white" : ""
-                    }`}
-                  >
-                    <item.icon className="h-3 w-3 shrink-0" />
-                    <span className="truncate">{item.label}</span>
-                  </div>
-                );
-                return item.external ? (
-                  <a key={item.href} href={item.href} target="_blank" rel="noreferrer">{content}</a>
-                ) : (
-                  <Link key={item.href} href={item.href}>{content}</Link>
-                );
-              })}
-            </div>
-          </section>
-        ))}
-        {user?.role === "admin" && (
-          <section>
-            <p className="pixel-text mb-1.5 px-1 text-[8px] leading-none text-[#ffe177] [text-shadow:2px_2px_0_#131e48]">ADMIN</p>
-            <Link href="/admin">
-              <div className={`pixel-button flex min-h-9 items-center gap-2 px-2.5 py-2 text-[9px] leading-none ${
-                isActive("/admin") ? "!bg-[#ee292b] !text-white" : ""
-              }`}>
-                <ShieldCheck className="h-3 w-3 shrink-0" />
-                <span className="truncate">Admin Panel</span>
-              </div>
-            </Link>
-          </section>
-        )}
-      </nav>
-
-      <div className="mx-3 border-t-[4px] border-dashed border-[#0a1021] pt-3 pb-3 space-y-2">
-        <Link href="/account">
-          <div className={`pixel-button flex min-h-9 w-full items-center gap-2 px-2.5 py-2 text-left text-[9px] ${
-            isActive("/account") ? "!bg-[#ee292b] !text-white" : ""
-          }`}>
-            <UserRound className="h-3 w-3" />
-            <span>Account</span>
-          </div>
-        </Link>
-        {user && (
-          <>
-            <button
-              onClick={() => logout()}
-              className="pixel-button flex min-h-9 w-full items-center gap-2 px-2.5 py-2 text-[9px] !bg-[#43b94e] !text-white"
-            >
-              <LogOut className="h-3 w-3" />
-              <span>Log out</span>
-            </button>
-          </>
-        )}
-      </div>
-    </>
-  );
+    (href === "/" && location === "/") ||
+    (href === "/cards" && location.startsWith("/product/"));
 
   return (
-    <div className="pixel-shell min-h-screen bg-[#030303] text-[#fff4dc]">
-      <aside className="fixed inset-y-0 left-0 z-50 hidden w-[260px] flex-col bg-[#5f90ef] text-[#16100c] lg:flex">
-        {navContent}
-      </aside>
-
-      <div
-        className={`fixed inset-0 z-40 bg-black/70 transition-opacity lg:hidden ${navOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
-        onClick={() => setNavOpen(false)}
-      />
-      <aside className={`fixed inset-y-0 left-0 z-50 flex w-[calc(100vw-16px)] max-w-[316px] flex-col bg-[#5f90ef] text-[#16100c] transition-transform lg:hidden ${navOpen ? "translate-x-0" : "-translate-x-full"}`}>
-        {navContent}
-      </aside>
-
-      <main className="min-h-screen lg:pl-[260px]">
-        <header className="pixel-content-gutter sticky top-0 z-30 flex h-14 items-center border-b-[3px] border-[#183c9d] bg-[#070d25]/95 shadow-[0_3px_0_#02040d] backdrop-blur">
-          <button className="text-[#ffe177] lg:hidden" onClick={() => setNavOpen(true)} aria-label="Open menu">
-            <Menu className="h-5 w-5" />
-          </button>
-          {user && (
-            <div className="ml-auto">
-              <Link href="/deposit">
-                <div
-                  className="pixel-button flex min-h-9 items-center gap-2 border-[3px] border-black !bg-[#ffe1aa] px-2.5 py-2 text-[9px] !text-[#17110a] shadow-[2px_2px_0_#050505] transition-colors hover:!bg-[#fff0c5]"
-                  data-testid="button-header-balance"
-                >
-                  <span>{user.balance === 0 ? "$0" : `$${(user.balance / 100).toFixed(2)}`}</span>
-                </div>
+    <div className="store-shell min-h-screen bg-[#f8f8fb] text-[#5d6072]">
+      <header className="store-header sticky top-0 z-40 border-b border-[#eeeeF5] bg-white">
+        <div className="mx-auto flex h-[54px] max-w-[1024px] items-center justify-between gap-4 px-4">
+          <nav className="hidden items-center gap-1 md:flex">
+            {visibleNav.map(item => (
+              <Link key={item.href} href={item.href}>
+                <span className={`store-nav-link ${isActive(item.href) ? "store-nav-link-active" : ""}`}>
+                  {item.label}
+                </span>
               </Link>
-            </div>
-          )}
-        </header>
-        <div className="pixel-content-gutter min-h-[calc(100vh-56px)] py-4 lg:py-5">
-          {children}
+            ))}
+          </nav>
+          <button className="store-icon-button md:hidden" onClick={() => setMobileOpen(true)} aria-label="Open menu">
+            <Menu className="h-4 w-4" />
+          </button>
+          <div className="ml-auto flex items-center gap-1.5">
+            <Link href="/checkout">
+              <span className="store-top-action" aria-label="Cart"><ShoppingBasket className="h-3.5 w-3.5" /></span>
+            </Link>
+            {user && (
+              <>
+                <Link href="/billing">
+                  <span className="store-top-action gap-1.5 font-semibold text-[#ed3e4d]">
+                    <Layers3 className="h-3 w-3 text-[#6e4be6]" />
+                    ${(user.balance / 100).toFixed(2)}
+                  </span>
+                </Link>
+                <Link href="/account">
+                  <span className="store-top-action gap-1.5">
+                    <UserRound className="h-3 w-3 text-[#6e4be6]" />
+                    {user.username}
+                  </span>
+                </Link>
+                <button className="store-top-action text-[#6e4be6]" onClick={() => logout()}>Sign Out</button>
+              </>
+            )}
+          </div>
         </div>
+        {mobileOpen && (
+          <div className="border-t border-[#eeeeF5] bg-white px-4 py-3 md:hidden">
+            <div className="flex items-center justify-between pb-2">
+              <span className="text-xs font-semibold text-[#454858]">Menu</span>
+              <button className="store-icon-button" onClick={() => setMobileOpen(false)} aria-label="Close menu"><X className="h-4 w-4" /></button>
+            </div>
+            <div className="grid grid-cols-2 gap-1">
+              {visibleNav.map(item => <Link key={item.href} href={item.href}><span className={`store-mobile-link ${isActive(item.href) ? "store-mobile-link-active" : ""}`}>{item.label}</span></Link>)}
+              {user?.role === "admin" && <Link href="/admin"><span className="store-mobile-link"><ShieldCheck className="mr-2 inline h-3 w-3" />Admin</span></Link>}
+            </div>
+          </div>
+        )}
+      </header>
+      <main className="mx-auto min-h-[calc(100vh-54px)] max-w-[1024px] px-4 py-5 sm:py-6">
+        {children}
       </main>
     </div>
   );
