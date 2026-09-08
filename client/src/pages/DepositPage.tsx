@@ -273,6 +273,19 @@ export default function DepositPage() {
                  className="pixel-input h-12"
                 data-testid="input-amount"
               />
+               <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5">
+                 {[10, 25, 50, 75, 100].map(amount => (
+                   <button
+                     key={amount}
+                     type="button"
+                     onClick={() => handleAmountChange(String(amount))}
+                     disabled={isPending}
+                     className={`border-[3px] border-black px-2 py-2.5 font-mono text-[10px] font-bold transition-colors ${parsedAmount === amount ? "bg-[#ffe177] text-black" : "bg-[#0b1849] text-white hover:bg-[#17337d]"}`}
+                   >
+                     ${amount}
+                   </button>
+                 ))}
+               </div>
               {selectedOption ? (
                 <p className="font-mono text-[10px] leading-relaxed text-[#abbceb]">
                   {selectedOption === "crypto"

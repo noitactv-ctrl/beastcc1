@@ -6,7 +6,7 @@ import { useLocation } from "wouter";
 import { Loader2, ReceiptText, Coins, Crown } from "lucide-react";
 import { Link } from "wouter";
 
-type TabType = "all" | "logs" | "cards" | "ach";
+type TabType = "all" | "cards" | "ach";
 
 const rankLabels: Record<string, string> = {
   newbie: "Newbie",
@@ -37,10 +37,6 @@ function isCardOrder(order: any): boolean {
     (order.orderId ?? "").startsWith("CARD-") ||
     (!isAchOrder(order) && (order.items ?? []).some((i: any) => i.itemType === "card" || i.cardId != null))
   );
-}
-
-function isLogOrder(order: any): boolean {
-  return (order.items ?? []).some((item: any) => item.itemType === "product");
 }
 
 function isDepositOrder(order: any): boolean {
@@ -134,8 +130,7 @@ export default function OrdersPage() {
 
   const cardOrders = useMemo(() => allOrders.filter(isCardOrder), [allOrders]);
   const achOrders = useMemo(() => allOrders.filter(isAchOrder), [allOrders]);
-  const logOrders = useMemo(() => allOrders.filter(isLogOrder), [allOrders]);
-  const tabOrders = tab === "cards" ? cardOrders : tab === "logs" ? logOrders : tab === "ach" ? achOrders : allOrders;
+  const tabOrders = tab === "cards" ? cardOrders : tab === "ach" ? achOrders : allOrders;
 
   const filteredOrders = useMemo(() => {
     if (!search.trim()) return tabOrders;
@@ -171,7 +166,6 @@ export default function OrdersPage() {
 
   const tabs: { key: TabType; label: string; count: number; href?: string }[] = [
     { key: "all", label: "all", count: allOrders.length },
-    { key: "logs", label: "logs", count: logOrders.length, href: "/logs" },
     { key: "cards", label: "cards", count: cardOrders.length, href: "/cards" },
     ...(achOrders.length > 0 ? [{ key: "ach" as TabType, label: "ach", count: achOrders.length }] : []),
   ];
@@ -242,9 +236,9 @@ export default function OrdersPage() {
         <div className="pixel-panel bg-[#10215e] px-5 py-14 text-center">
           <ReceiptText className="mx-auto h-8 w-8 text-[#ffe177]" />
           <h2 className="mt-5 text-sm leading-relaxed text-white">NO ORDERS YET</h2>
-           <p className="mx-auto mt-3 max-w-md text-xs text-white/55">When you buy logs, cards, or add balance, your activity will show up here.</p>
+           <p className="mx-auto mt-3 max-w-md text-xs text-white/55">When you buy cards or add balance, your activity will show up here.</p>
           <div className="mt-5 flex justify-center">
-             <Link href="/logs" className="pixel-button inline-flex items-center gap-2 px-3 py-3 text-[8px]"><ReceiptText className="h-3 w-3" />BROWSE LOGS</Link>
+              <Link href="/cards" className="pixel-button inline-flex items-center gap-2 px-3 py-3 text-[8px]"><ReceiptText className="h-3 w-3" />BROWSE CARDS</Link>
           </div>
         </div>
       ) : (
@@ -252,7 +246,6 @@ export default function OrdersPage() {
           {filteredOrders.map((order: any) => {
             const isDeposit = isDepositOrder(order);
             const isCard = isCardOrder(order);
-            const isLog = isLogOrder(order);
             const row = (
                 <div className="flex items-start justify-between gap-3">
                   <div className="space-y-1 min-w-0">
@@ -262,9 +255,9 @@ export default function OrdersPage() {
                         isDeposit ? "bg-green-900/30 text-green-300" :
                         isCard ? "bg-blue-900/30 text-blue-400" :
                         isAchOrder(order) ? "bg-cyan-900/30 text-cyan-400" :
-                        isLog ? "bg-red-900/30 text-red-300" : "bg-white/10 text-white/60"
+                         "bg-white/10 text-white/60"
                       }`}>
-                        {isDeposit ? "deposit" : isCard ? "card" : isAchOrder(order) ? "ach" : isLog ? "log" : "other"}
+                         {isDeposit ? "deposit" : isCard ? "card" : isAchOrder(order) ? "ach" : "product"}
                       </span>
                     </div>
                     <p className={`text-xs ${isDeposit ? "text-green-200/70" : "text-white/60"}`}>

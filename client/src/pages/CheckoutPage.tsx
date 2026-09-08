@@ -63,7 +63,7 @@ export default function CheckoutPage() {
             )}
             {cardItems.map(card => (
               <div key={card.id} className="flex items-center justify-between gap-3 border-b-2 border-black p-4">
-                <div><p className="font-mono text-xs font-bold text-white">{card.bin}</p><p className="mt-1 text-[10px] text-[#ffe177]">{card.brand} · {card.baseName}</p></div>
+                <div><p className="font-mono text-xs font-bold text-white">{card.bin}</p><p className="mt-1 text-[10px] text-[#ffe177]">{card.brand} · {card.baseName}</p><p className="mt-1 font-mono text-[9px] text-[#72df7c]">{card.refundable ? "REFUNDABLE" : "STANDARD"}</p></div>
                 <div className="flex items-center gap-3"><span className="font-mono text-xs text-white">${(card.price / 100).toFixed(2)}</span><button onClick={() => removeCard(card.id)} className="text-white/55 hover:text-white"><Trash2 className="h-4 w-4" /></button></div>
               </div>
             ))}
