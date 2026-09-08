@@ -31,7 +31,7 @@ export default function HomePage() {
       <section className="pixel-panel overflow-hidden bg-[#10215e] p-5 sm:p-7">
         <p className="pixel-label">DASHBOARD / MARKET STATUS</p>
         <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
-          <div><h1 className="text-xl leading-relaxed text-white sm:text-2xl">WELCOME TO BEASTCC</h1><p className="mt-3 max-w-xl font-mono text-[10px] leading-5 text-white/55">Verified inventory, country-aware BIN data, and fast checkout.</p></div>
+          <div><h1 className="text-xl leading-relaxed text-white sm:text-2xl">WELCOME TO LOOFY</h1><p className="mt-3 max-w-xl font-mono text-[10px] leading-5 text-white/55">Verified inventory, country-aware BIN data, and fast checkout.</p></div>
           <Link href="/cards"><span className="pixel-button inline-flex !bg-[#ee292b] px-4 py-3 text-[8px] !text-white">BROWSE CARDS</span></Link>
         </div>
       </section>
