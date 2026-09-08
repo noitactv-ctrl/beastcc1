@@ -2,7 +2,7 @@ import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useFeatureVisibility } from "@/hooks/use-feature-visibility";
 import { useQuery } from "@tanstack/react-query";
-import { Menu, ShoppingBasket, Layers3, UserRound, X } from "lucide-react";
+import { Menu, ShoppingBasket, X } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { useState } from "react";
 
@@ -61,15 +61,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <>
                 <Link href="/billing">
                   <span className="game-top-action hidden gap-1.5 font-semibold text-[#ffe177] sm:inline-flex">
-                    <Layers3 className="h-3 w-3 text-[#ffe177]" />
                     ${(user.balance / 100).toFixed(2)}
                   </span>
                 </Link>
                 <Link href="/account">
-                  <span className="game-top-action hidden gap-1.5 sm:inline-flex">
-                    <UserRound className="h-3 w-3 text-[#ffe177]" />
-                    {user.username}
-                  </span>
+                  <span className="game-top-action hidden gap-1.5 sm:inline-flex">{user.username}</span>
                 </Link>
                 <button className="game-top-action" onClick={() => logout()}><span className="hidden sm:inline">Sign Out</span><span className="sm:hidden">OUT</span></button>
               </>

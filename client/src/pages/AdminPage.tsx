@@ -28,7 +28,6 @@ import { splitCardEntries } from "@shared/card-input";
 const adminSections = [
   { id: "dashboard", label: "Dashboard", Icon: LayoutDashboard },
   { id: "cards", label: "Cards",      Icon: CreditCard },
-  { id: "products", label: "Products", Icon: Package },
   { id: "orders",   label: "Orders",     Icon: ShoppingBag },
   { id: "cashapp",  label: "Payments",   Icon: DollarSign, ownerOnly: true },
   { id: "deposits", label: "Deposits",   Icon: Wallet },
@@ -141,7 +140,6 @@ export default function AdminPage() {
           <div className="pixel-page w-full">
             {activeSection === "dashboard"    && <DashboardSection canManageDanger={isOwner} />}
             {activeSection === "cards"        && <AdminCardsSection />}
-            {activeSection === "products"     && <ProductsSection />}
             {activeSection === "orders"       && <OrdersSection />}
             {activeSection === "cashapp"      && <CashAppSection />}
             {activeSection === "users"        && <UsersSection canManageStaff={isOwner} />}
@@ -3373,12 +3371,12 @@ function ProductStockSafetyCard() {
 
 function FeatureTogglesCard() {
   const { toast } = useToast();
-  const { data: features, isLoading: featuresLoading } = useQuery<{ ranks: boolean; logs: boolean; cards: boolean }>({
+  const { data: features, isLoading: featuresLoading } = useQuery<{ logs: boolean; cards: boolean }>({
     queryKey: ["/api/settings/features"],
   });
 
   const toggleFeature = useMutation({
-    mutationFn: async (body: { ranks?: boolean; logs?: boolean; cards?: boolean }) => {
+    mutationFn: async (body: { logs?: boolean; cards?: boolean }) => {
       const res = await apiRequest("POST", "/api/admin/settings/features", body);
       return res.json();
     },
@@ -3390,7 +3388,6 @@ function FeatureTogglesCard() {
   });
 
   const FEATURES = [
-    { key: "ranks" as const, label: "Ranks", desc: "Show/hide the Ranks page and nav link" },
     { key: "logs" as const, label: "Logs", desc: "Show/hide the Logs page and nav link" },
     { key: "cards" as const, label: "Cards", desc: "Show/hide the Cards page and nav link" },
   ];

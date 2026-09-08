@@ -54,7 +54,7 @@ export default function CardsPage() {
   const hasFilters = Object.entries(filters).some(([key, value]) => key === "base" || key === "country" || key === "brand" ? value !== "all" : Boolean(value));
   const addToCart = (card: any, checkout = false) => {
     const alreadyInCart = useCart.getState().cardItems.some(item => item.id === card.id);
-    addCard({ id: card.id, bin: cardBin(card), brand: cardBrand(card), type: String(card.binData?.type || "").toUpperCase(), baseName: card.baseName || "Standard", price: card.price, refundable: true });
+    addCard({ id: card.id, bin: cardBin(card), brand: cardBrand(card), type: String(card.binData?.type || "").toUpperCase(), country: countryCode(card) || undefined, baseName: card.baseName || "Standard", price: card.price, refundable: true });
     toast({ title: alreadyInCart ? "ALREADY IN CART" : "ADDED TO CART", description: `${cardBrand(card)} ${cardBin(card)} · REFUNDABLE` });
     if (checkout) setLocation("/checkout");
   };

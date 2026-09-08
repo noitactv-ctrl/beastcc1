@@ -1,8 +1,6 @@
 import { useMemo } from "react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowDownToLine, ShoppingBag } from "lucide-react";
-import { useAuth } from "@/hooks/use-auth";
 
 function flagFor(code: string) {
   const value = String(code || "").toUpperCase();
@@ -11,16 +9,7 @@ function flagFor(code: string) {
 }
 
 export default function HomePage() {
-  const { user } = useAuth();
   const { data: cards = [] } = useQuery<any[]>({ queryKey: ["/api/cards"], refetchInterval: 30000 });
-  const { data: rankData } = useQuery<{ totalDeposited: number }>({
-    queryKey: ["/api/user/rank"],
-    enabled: !!user,
-  });
-  const { data: transactions = [] } = useQuery<any[]>({
-    queryKey: ["/api/wallet/transactions"],
-    enabled: !!user,
-  });
   const brands = useMemo(() => {
     const counts = new Map<string, number>();
     cards.forEach(card => {
@@ -37,17 +26,6 @@ export default function HomePage() {
     });
     return Array.from(counts.entries()).sort((a, b) => b[1] - a[1]).slice(0, 12);
   }, [cards]);
-  const spentCents = useMemo(
-    () => transactions
-      .filter((transaction: any) => transaction.type === "purchase" && Number(transaction.amount) < 0)
-      .reduce((total: number, transaction: any) => total + Math.abs(Number(transaction.amount) || 0), 0),
-    [transactions],
-  );
-  const depositedCents = Number(rankData?.totalDeposited ?? transactions
-    .filter((transaction: any) => ["deposit", "manual_deposit"].includes(transaction.type) && Number(transaction.amount) > 0)
-    .reduce((total: number, transaction: any) => total + (Number(transaction.amount) || 0), 0));
-  const money = (cents: number) => `$${(cents / 100).toFixed(2)}`;
-
   return (
     <div className="pixel-page space-y-6">
       <section className="store-card overflow-hidden">
@@ -64,24 +42,6 @@ export default function HomePage() {
             </div>
             <Link href="/cards"><span className="pixel-button inline-flex items-center px-5 py-3">Browse cards</span></Link>
           </div>
-        </div>
-      </section>
-      <section className="grid gap-4 sm:grid-cols-2">
-        <div className="store-card flex items-center justify-between gap-4 p-5">
-          <div>
-            <p className="text-sm font-semibold text-[#77798a]">Total spent</p>
-            <p className="mt-2 text-2xl font-bold text-[#363847]">{money(spentCents)}</p>
-            <p className="mt-1 text-xs text-[#a0a2af]">Purchases from your account</p>
-          </div>
-          <ShoppingBag className="h-6 w-6 text-[#5b5bd6]" />
-        </div>
-        <div className="store-card flex items-center justify-between gap-4 p-5">
-          <div>
-            <p className="text-sm font-semibold text-[#77798a]">Total deposited</p>
-            <p className="mt-2 text-2xl font-bold text-[#363847]">{money(depositedCents)}</p>
-            <p className="mt-1 text-xs text-[#a0a2af]">Funds added to your account</p>
-          </div>
-          <ArrowDownToLine className="h-6 w-6 text-[#5b5bd6]" />
         </div>
       </section>
       <section className="grid gap-5 md:grid-cols-2">

@@ -21,7 +21,6 @@ import HomePage from "@/pages/HomePage";
 import CheckoutPage from "@/pages/CheckoutPage";
 import BillingHistoryPage from "@/pages/BillingHistoryPage";
 import AccountPage from "@/pages/AccountPage";
-import RanksPage from "@/pages/RanksPage";
 import CardsPage from "@/pages/CardsPage";
 import SupportPage from "@/pages/SupportPage";
 import RoutingCatalogPage from "@/pages/RoutingCatalogPage";
@@ -75,7 +74,6 @@ function Router() {
         <Route path="/account/password" component={AccountPage} />
         <Route path="/account/backup" component={AccountPage} />
         <Route path="/account/destroy" component={AccountPage} />
-        <Route path="/ranks">{() => features.ranks ? <RanksPage /> : <Redirect to="/deposit" />}</Route>
         <Route path="/cards">{() => features.cards ? <CardsPage /> : <Redirect to="/deposit" />}</Route>
         <Route path="/routings"><Redirect to="/deposit" /></Route>
         <Route path="/support" component={SupportPage} />
