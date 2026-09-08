@@ -325,15 +325,14 @@ export default function DepositPage() {
                       key={opt.id}
                       onClick={() => handlePaymentMethodSelect(opt.id)}
                       disabled={isPending}
-                      className={`flex min-h-20 flex-col items-center justify-center gap-1.5 border-[3px] border-black px-2 py-2 transition-all ${isActive ? "bg-[#2555c5] shadow-[2px_2px_0_#ffe177]" : "bg-[#0b1849] hover:bg-[#17337d]"}`}
+                       className={`flex min-h-16 flex-col items-center justify-center gap-1 border-[3px] border-black px-2 py-2 transition-all ${isActive ? "bg-[#2555c5] shadow-[2px_2px_0_#ffe177]" : "bg-[#0b1849] hover:bg-[#17337d]"}`}
                       style={{
                         outline: isActive ? `2px solid ${opt.color}` : "none",
                       }}
                       data-testid={`btn-payment-${opt.id}`}
                     >
-                      <opt.Icon className="h-5 w-5 flex-shrink-0" style={{ color: opt.color }} />
-                      <span className="pixel-text text-[8px] text-white">{opt.label}</span>
-                      <span className="font-mono text-[9px] text-white/55">{opt.sub}</span>
+                       <span className="font-semibold text-white">{opt.label}</span>
+                       <span className="text-xs text-white/55">{opt.sub}</span>
                     </button>
                   );
                 })}
