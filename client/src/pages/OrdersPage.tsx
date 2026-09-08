@@ -71,9 +71,11 @@ function statusBadge(status: string) {
     refunded: { label: "REFUNDED", cls: "bg-red-900/40 text-red-400" },
     replaced: { label: "REPLACED", cls: "bg-blue-900/40 text-blue-400" },
   };
-  const entry = map[status] ?? { label: status?.toUpperCase() ?? "—", cls: "bg-[#0d0d0d] text-white/45" };
+  const entry = map[status] ?? { label: status?.toUpperCase() ?? "—", cls: "" };
+  const positive = ["fulfilled", "delivering", "completed"].includes(status);
+  const negative = ["failed", "expired", "refunded"].includes(status);
   return (
-    <span className={`text-[10px] px-2 py-0.5 rounded font-medium ${entry.cls}`}>
+    <span className={`store-status ${positive ? "store-status-positive" : negative ? "store-status-negative" : ""}`}>
       {entry.label}
     </span>
   );
@@ -174,7 +176,7 @@ export default function OrdersPage() {
     <div className="pixel-page space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl leading-relaxed text-white sm:text-2xl">ORDER &amp; DEPOSIT HISTORY</h1>
+          <h1 className="text-xl leading-relaxed text-white sm:text-2xl">ORDER HISTORY</h1>
           <p className="mt-2 font-mono text-[10px] text-white/45">{formatDateTime(now)}</p>
         </div>
         <div className="flex flex-wrap justify-end gap-2">
@@ -187,15 +189,15 @@ export default function OrdersPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-0 border-b-[3px] border-[#e5be35] overflow-x-auto pt-1">
+      <div className="flex items-center gap-0 border-b border-[#e9e8f1] overflow-x-auto pt-1">
         {tabs.map(t => (
           <div key={t.key} className="flex items-center gap-1 mr-4">
             <button
               onClick={() => setTab(t.key)}
               className={`px-1 pb-2 text-xs transition-colors border-b-2 -mb-px ${
                 tab === t.key
-                  ? "text-[#ffe177] border-[#ffe177] pixel-text text-[8px]"
-                  : "text-white/40 border-transparent hover:text-white/60"
+                   ? "text-[#5b5bd6] border-[#9a98e8] font-bold"
+                   : "text-white/40 border-transparent hover:text-[#5b5bd6]"
               }`}
               data-testid={`tab-${t.key}`}
             >
@@ -218,7 +220,7 @@ export default function OrdersPage() {
           placeholder="search orders and deposits..."
         value={search}
         onChange={e => setSearch(e.target.value)}
-        className="pixel-input max-w-sm"
+        className="store-input max-w-sm"
         data-testid="input-search-orders"
       />
 
@@ -228,7 +230,7 @@ export default function OrdersPage() {
           <Loader2 className="h-6 w-6 animate-spin text-[#ffe177]" />
         </div>
       ) : filteredOrders.length === 0 ? (
-        <div className="pixel-panel bg-[#10215e] px-5 py-14 text-center">
+        <div className="store-card px-5 py-14 text-center">
           <ReceiptText className="mx-auto h-8 w-8 text-[#ffe177]" />
           <h2 className="mt-5 text-sm leading-relaxed text-white">NO ORDERS YET</h2>
            <p className="mx-auto mt-3 max-w-md text-xs text-white/55">When you buy cards or add balance, your activity will show up here.</p>
@@ -274,7 +276,7 @@ export default function OrdersPage() {
             return isDeposit ? (
               <div
                 key={order.id}
-                className="w-full border-[3px] border-[#1d713e] bg-[#10215e] px-4 py-3"
+                className="store-card w-full px-4 py-3 text-left"
                 data-testid={`row-deposit-${order.id}`}
               >
                 {row}
@@ -283,7 +285,7 @@ export default function OrdersPage() {
               <button
                 key={order.id}
                 onClick={() => setLocation(`/order/${order.orderId}`)}
-                className="w-full border-[3px] border-black bg-[#10215e] px-4 py-3 text-left transition-all hover:bg-[#19377e]"
+                className="store-card w-full px-4 py-3 text-left transition-all hover:bg-[#f7f6ff]"
                 data-testid={`btn-order-${order.id}`}
               >
                 {row}

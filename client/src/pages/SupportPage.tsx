@@ -26,16 +26,16 @@ type Order = {
 };
 
 function StatusBadge({ status }: { status: Ticket["status"] }) {
-  const map: Record<string, { label: string; cls: string; Icon: any }> = {
-    open:     { label: "Open",     cls: "bg-amber-500/15 text-amber-400 border-amber-500/25",   Icon: AlertCircle },
-    refunded: { label: "Refunded", cls: "bg-emerald-500/15 text-emerald-400 border-emerald-500/25", Icon: CheckCircle2 },
+  const map: Record<string, { label: string; positive?: boolean; Icon: any }> = {
+    open:     { label: "Open",     Icon: AlertCircle },
+    refunded: { label: "Refunded", positive: true, Icon: CheckCircle2 },
     // Keep old records readable without offering replacement as a current workflow.
-    replaced: { label: "Closed",   cls: "bg-white/8 text-white/40 border-white/10",             Icon: CheckCircle2 },
-    resolved: { label: "Resolved", cls: "bg-white/8 text-white/40 border-white/10",             Icon: XCircle },
+    replaced: { label: "Closed",   positive: true, Icon: CheckCircle2 },
+    resolved: { label: "Resolved", positive: true, Icon: XCircle },
   };
   const s = map[status] ?? map.open;
   return (
-    <span className={`inline-flex min-h-7 items-center gap-1 border-[3px] border-black px-2 py-1 pixel-text text-[8px] shadow-[2px_2px_0_#050505] ${s.cls}`}>
+    <span className={`store-status gap-1 ${s.positive ? "store-status-positive" : ""}`}>
       <s.Icon className="h-2.5 w-2.5" />
       {s.label}
     </span>
