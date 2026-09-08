@@ -1,12 +1,10 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import {
-  Coins, Crown, Gamepad2, Menu, ShoppingCart,
-  Ticket, CreditCard, ReceiptText, LogOut, ShieldCheck, Package, Gift,
+  Coins, Crown, Menu, Ticket, CreditCard, ReceiptText, LogOut, ShieldCheck, Package, Gift,
+  House, WalletCards, UserRound,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useCart } from "@/hooks/use-cart";
-import { CartSidebar } from "@/components/CartSidebar";
 import { useFeatureVisibility } from "@/hooks/use-feature-visibility";
 import { useQuery } from "@tanstack/react-query";
 
@@ -21,15 +19,13 @@ const navigation: { label: string; items: NavItem[] }[] = [
   {
     label: "MAIN",
     items: [
+      { href: "/", label: "Home", icon: House },
       { href: "/deposit", label: "Topup", icon: Coins },
       { href: "/redeem", label: "Redeem", icon: Gift },
       { href: "/orders", label: "Orders", icon: ReceiptText },
+      { href: "/billing", label: "Billing", icon: WalletCards },
       { href: "/ranks", label: "Rank", icon: Crown },
     ],
-  },
-  {
-    label: "GAMES",
-    items: [{ href: "/plinko", label: "Plinko", icon: Gamepad2 }],
   },
   {
     label: "SUPPORT",
@@ -53,11 +49,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
   });
   const [location] = useLocation();
   const [navOpen, setNavOpen] = useState(false);
-  const [cartRailOpen, setCartRailOpen] = useState(false);
-  const cartItems = useCart(s => s.items);
-  const cardItems = useCart(s => s.cardItems);
-  const bulkBundle = useCart(s => s.bulkBundle);
-  const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0) + cardItems.length + (bulkBundle?.cardIds.length ?? 0);
   useEffect(() => setNavOpen(false), [location]);
   useEffect(() => {
     document.body.style.overflow = navOpen ? "hidden" : "";
@@ -137,17 +128,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </nav>
 
       <div className="mx-3 border-t-[4px] border-dashed border-[#0a1021] pt-3 pb-3 space-y-2">
-        <button
-          type="button"
-          onClick={() => {
-            setCartRailOpen(true);
-            setNavOpen(false);
-          }}
-          className="pixel-button flex min-h-9 w-full items-center gap-2 px-2.5 py-2 text-left text-[9px]"
-        >
-            <ShoppingCart className="h-3 w-3" />
-            <span>Cart{cartCount ? ` (${cartCount})` : ""}</span>
-        </button>
+        <Link href="/account">
+          <div className={`pixel-button flex min-h-9 w-full items-center gap-2 px-2.5 py-2 text-left text-[9px] ${
+            isActive("/account") ? "!bg-[#ee292b] !text-white" : ""
+          }`}>
+            <UserRound className="h-3 w-3" />
+            <span>Account</span>
+          </div>
+        </Link>
         {user && (
           <>
             <button
@@ -199,10 +187,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
           {children}
         </div>
       </main>
-      <CartSidebar
-        open={cartRailOpen}
-        onClose={() => setCartRailOpen(false)}
-      />
     </div>
   );
 }
