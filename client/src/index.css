@@ -603,3 +603,264 @@
   color: #247237 !important;
 }
 
+/* Loofy storefront theme. Legacy pixel/game class names remain in older
+   screens for compatibility, but the customer-facing shell is intentionally
+   calm, conventional, and consistent. */
+.calm-shell,
+.calm-shell * {
+  font-family: 'Inter', sans-serif;
+}
+.calm-shell {
+  min-height: 100vh;
+  color: #303342;
+}
+.calm-shell h1,
+.calm-shell h2,
+.calm-shell h3,
+.calm-shell h4,
+.calm-shell h5,
+.calm-shell h6 {
+  font-family: 'Inter', sans-serif;
+  letter-spacing: -0.02em;
+}
+.calm-shell .pixel-page {
+  max-width: 70rem;
+}
+.calm-shell .pixel-content-gutter {
+  padding-inline: 1rem;
+}
+.calm-shell .pixel-logo-text {
+  color: #303342;
+  font-family: 'Inter', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  text-shadow: none;
+  -webkit-text-stroke: 0;
+}
+.calm-shell .pixel-panel,
+.calm-shell .store-card {
+  border: 1px solid #ececf2;
+  border-radius: 0.75rem;
+  background: #fff !important;
+  box-shadow: 0 2px 14px rgba(44, 48, 78, 0.045);
+}
+.calm-shell .pixel-button {
+  min-height: 2.25rem;
+  border: 0;
+  border-radius: 0.45rem;
+  background: #5b5bd6;
+  padding: 0.6rem 0.9rem;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 650;
+  box-shadow: none;
+  text-shadow: none;
+  transition: background-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+}
+.calm-shell .pixel-button:hover {
+  background: #4f50c7;
+  box-shadow: 0 3px 8px rgba(91, 91, 214, 0.2);
+  filter: none;
+  transform: translateY(-1px);
+}
+.calm-shell .pixel-input {
+  min-height: 2.35rem;
+  border: 1px solid #e2e3ea;
+  border-radius: 0.45rem;
+  background: #fff;
+  padding: 0.55rem 0.7rem;
+  color: #3b3d4c;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
+  box-shadow: none;
+}
+.calm-shell .pixel-input:focus {
+  border-color: #9a98e8;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(91, 91, 214, 0.1);
+}
+.calm-shell .pixel-input::placeholder {
+  color: #a4a6b2;
+}
+.calm-shell .pixel-label,
+.calm-shell .filter-field-label {
+  color: #6d6f80;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.calm-shell .filter-field-label {
+  display: block;
+}
+.calm-shell .game-nav-link {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  border: 0;
+  border-radius: 0.4rem;
+  background: transparent;
+  padding: 0 0.7rem;
+  color: #6b6e7e;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.calm-shell .game-nav-link:hover,
+.calm-shell .game-nav-link-active {
+  border: 0;
+  background: #f2f1ff;
+  color: #5855c8;
+}
+.calm-shell .game-top-action {
+  min-height: 2rem;
+  border: 1px solid #ececf2;
+  border-radius: 0.45rem;
+  background: #fff;
+  padding: 0 0.6rem;
+  color: #5b5d6d;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 500;
+  box-shadow: none;
+}
+.calm-shell .game-top-action:hover {
+  background: #f7f6ff;
+  color: #5855c8;
+}
+.calm-shell .game-mobile-link {
+  display: flex;
+  min-height: 40px;
+  align-items: center;
+  border: 1px solid #ececf2;
+  border-radius: 0.45rem;
+  background: #fff;
+  padding: 0.65rem 0.75rem;
+  color: #666979;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
+}
+.calm-shell .game-mobile-link-active {
+  border-color: #deddf8;
+  background: #f2f1ff;
+  color: #5855c8;
+}
+.calm-shell .game-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 1px solid #bfe4cf;
+  border-radius: 999px;
+  background: #eefaf3 !important;
+  padding: 0.25rem 0.5rem;
+  color: #398660 !important;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.calm-shell .store-label {
+  color: #888b9b;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+}
+.calm-shell .store-input,
+.calm-shell .store-select {
+  height: 2.35rem;
+  border: 1px solid #e2e3ea;
+  border-radius: 0.45rem;
+  background: #fff;
+  padding: 0 0.7rem;
+  color: #4b4d5d;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  outline: none;
+}
+.calm-shell .store-input:focus,
+.calm-shell .store-select:focus {
+  border-color: #9a98e8;
+  box-shadow: 0 0 0 3px rgba(91, 91, 214, 0.1);
+}
+.calm-shell .pixel-text,
+.calm-shell .mono {
+  font-family: 'Inter', sans-serif;
+}
+.calm-shell [class*="shadow-["] {
+  box-shadow: 0 2px 12px rgba(44, 48, 78, 0.05) !important;
+}
+.calm-shell [class*="border-black"],
+.calm-shell [class*="border-[#0a1021]"] {
+  border-color: #ececf2 !important;
+}
+.calm-shell [class*="bg-[#0d0d0d]"],
+.calm-shell [class*="bg-[#111]"],
+.calm-shell [class*="bg-[#10215e]"],
+.calm-shell [class*="bg-[#0a1645]"],
+.calm-shell [class*="bg-[#0b1849]"],
+.calm-shell [class*="bg-[#152d75]"],
+.calm-shell [class*="bg-[#142d78]"],
+.calm-shell [class*="bg-[#19377e]"],
+.calm-shell [class*="bg-[#19367f]"],
+.calm-shell [class*="bg-[#1d3d93]"],
+.calm-shell [class*="bg-[#030303]"],
+.calm-shell [class*="bg-[#050505]"],
+.calm-shell [class*="bg-[#070d25]"],
+.calm-shell [class*="bg-[#08143c]"] {
+  background-color: #fff !important;
+}
+.calm-shell [class*="bg-[#ffe1aa]"],
+.calm-shell [class*="bg-[#fff4dc]"] {
+  background-color: #fafaff !important;
+}
+.calm-shell [class*="bg-[#5f90ef]"],
+.calm-shell [class*="bg-[#17337d]"] {
+  background-color: #f0efff !important;
+}
+.calm-shell [class*="bg-[#ee292b]"] {
+  background-color: #c96875 !important;
+}
+.calm-shell [class*="bg-[#43b94e]"] {
+  background-color: #4fa878 !important;
+}
+.calm-shell [class*="text-white/"] {
+  color: #858896 !important;
+}
+.calm-shell [class~="text-white"] {
+  color: #3e4050 !important;
+}
+.calm-shell [class*="text-[#abbceb]"] {
+  color: #9496a4 !important;
+}
+.calm-shell [class*="text-[#ffe177]"] {
+  color: #5b5bd6 !important;
+}
+.calm-shell [class*="text-[#72df7c]"] {
+  color: #398660 !important;
+}
+.calm-shell [class*="text-[#fff4dc]"] {
+  color: #4c4e5e !important;
+}
+.calm-shell aside {
+  border-color: #ececf2 !important;
+  background: #fff !important;
+}
+.calm-shell header {
+  border-color: #ececf2 !important;
+  box-shadow: 0 1px 8px rgba(44, 48, 78, 0.04) !important;
+}
+
+@media (min-width: 640px) {
+  .calm-shell .pixel-content-gutter {
+    padding-inline: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .calm-shell .pixel-content-gutter {
+    padding-inline: 1.5rem;
+  }
+}
+
