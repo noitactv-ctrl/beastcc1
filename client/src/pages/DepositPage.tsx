@@ -9,6 +9,7 @@ import { calculateDepositCredit, DEPOSIT_BONUS_TIERS } from "@shared/deposit";
 import { ManualPaymentQrCode } from "@/components/ManualPaymentQrCode";
 import { CryptoCoinSelector, type CryptoCurrencyOption } from "@/components/CryptoCoinSelector";
 import { CryptoPaymentPanel, type CryptoInvoiceData } from "@/components/CryptoPaymentPanel";
+import { BillingSubnav } from "@/components/BillingSubnav";
 
 type Method = "crypto" | "cashapp" | "chime" | "zelle" | "venmo";
 
@@ -238,7 +239,8 @@ export default function DepositPage() {
 
   return (
     <div className="store-page">
-      <div className="store-breadcrumb"><strong>Billing</strong><span>⌂</span><span>·</span><span>Deposit</span></div>
+      <BillingSubnav />
+      <div className="store-breadcrumb hidden sm:flex"><strong>Billing</strong><span>⌂</span><span>·</span><span>Deposit</span></div>
       <div className="store-card">
         {cryptoInvoice ? (
           <CryptoPaymentPanel

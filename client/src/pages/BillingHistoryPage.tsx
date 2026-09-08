@@ -1,11 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
+import { BillingSubnav } from "@/components/BillingSubnav";
 
 export default function BillingHistoryPage() {
   const { data: transactions = [], isLoading } = useQuery<any[]>({ queryKey: ["/api/wallet/transactions"] });
   return (
     <div className="store-page">
-      <div className="store-breadcrumb"><strong>Billing</strong><span>⌂</span><span>·</span><span>History</span></div>
+      <BillingSubnav />
+      <div className="store-breadcrumb hidden sm:flex"><strong>Billing</strong><span>⌂</span><span>·</span><span>History</span></div>
       <section className="store-card">
         <div className="store-card-title flex items-center justify-between"><span>Histories (Last 100 records)</span><Link href="/billing"><span className="text-xs font-normal text-[#6848d8]">Deposit</span></Link></div>
         {isLoading ? <p className="p-6 text-center text-xs text-[#9a9cab]">Loading...</p> : transactions.length === 0 ? <p className="p-6 text-center text-xs text-[#9a9cab]">NOT FOUND</p> : (
