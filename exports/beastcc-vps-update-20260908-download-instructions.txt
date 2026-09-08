@@ -1,0 +1,14 @@
+BEASTCC CURRENT VPS UPDATE
+
+Download: beastcc-vps-update-20260908.tar.gz
+This is a CODE-ONLY update. It intentionally does not include a database dump, attached assets, or .env file.
+Keep the VPS .env and PostgreSQL volume.
+
+On the VPS:
+  tar -xzf /path/to/beastcc-vps-update-20260908.tar.gz --strip-components=1 -C /opt/beastcc/website
+  cd /opt/beastcc/website
+  docker compose down
+  docker compose up -d --build
+  curl http://127.0.0.1:5000/api/health
+
+Never use docker compose down -v; that would delete the PostgreSQL volume.

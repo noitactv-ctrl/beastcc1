@@ -4014,6 +4014,7 @@ function AdminCardsSection() {
   const [tab, setTab] = useState<"stock" | "bases">("stock");
   const [fullItem, setFullItem] = useState("");
   const [price, setPrice] = useState("");
+  const [hrPercent, setHrPercent] = useState("80");
   const [selectedBaseId, setSelectedBaseId] = useState<string>("");
   const [refreshProgress, setRefreshProgress] = useState(0);
 
@@ -4056,7 +4057,9 @@ function AdminCardsSection() {
       if (!fullItem.trim()) throw new Error("Full item is required");
       if (!price || parseFloat(price) <= 0) throw new Error("Valid price is required");
       if (!selectedBaseId) throw new Error("Name is required");
-      const body: any = { extras: fullItem.trim(), price: parseFloat(price), baseId: Number(selectedBaseId) };
+      const parsedHr = Number(hrPercent);
+      if (!Number.isInteger(parsedHr) || parsedHr < 0 || parsedHr > 100) throw new Error("Validation rate must be a whole number from 0 to 100");
+      const body: any = { extras: fullItem.trim(), price: parseFloat(price), hrPercent: parsedHr, baseId: Number(selectedBaseId) };
       const res = await apiRequest("POST", "/api/cards", body);
       if (!res.ok) { const err = await res.json(); throw new Error(err.message || "Failed to add card"); }
       return res.json();
@@ -4064,7 +4067,7 @@ function AdminCardsSection() {
     onSuccess: (data: any) => {
       qc.invalidateQueries({ queryKey: ["/api/cards"] });
       qc.invalidateQueries({ queryKey: ["/api/card-bases"] });
-      setFullItem(""); setPrice(""); setSelectedBaseId("");
+      setFullItem(""); setPrice(""); setHrPercent("80"); setSelectedBaseId("");
       const count = data?.count ?? 1;
        const skippedItems = Array.isArray(data?.skipped) ? data.skipped : [];
        const skipped = skippedItems.length;
@@ -4192,9 +4195,25 @@ function AdminCardsSection() {
           />
         </div>
 
+        <div className="space-y-1">
+          <label className="text-[10px] text-white/45 uppercase tracking-widest">Validation Rate (%)</label>
+          <Input
+            value={hrPercent}
+            onChange={e => setHrPercent(e.target.value)}
+            placeholder="80"
+            type="number"
+            min="0"
+            max="100"
+            step="1"
+            className="bg-[#111]/5 border-white/10"
+            data-testid="input-card-validation-rate"
+          />
+          <p className="text-[10px] text-white/30">Shown to shoppers as the expected validation rate for this stock.</p>
+        </div>
+
         <Button
           onClick={() => addMutation.mutate()}
-          disabled={addMutation.isPending || !fullItem.trim() || !price || !selectedBaseId}
+          disabled={addMutation.isPending || !fullItem.trim() || !price || !selectedBaseId || !hrPercent}
           size="sm"
           className="w-full h-8 text-xs"
           data-testid="btn-add-card"
