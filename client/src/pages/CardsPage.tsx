@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useLocation } from "wouter";
+import { Link, useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useCart } from "@/hooks/use-cart";
 import { useToast } from "@/hooks/use-toast";
@@ -117,7 +117,7 @@ export default function CardsPage() {
                   <td className="px-2 py-3">—</td><td className="px-2 py-3">—</td>
                   <td className="max-w-[130px] truncate px-2 py-3">{bank(card) || "—"}</td>
                   <td className="px-2 py-3">{String(card.binData?.level || "—").toUpperCase()}</td><td className="px-2 py-3">—</td><td className="px-2 py-3">—</td><td className="px-2 py-3">—</td><td className="px-2 py-3">—</td>
-                  <td className="px-2 py-3"><button className="text-lg leading-none text-[#6042d2]" onClick={() => buyMutation.mutate(card)} aria-label="Buy card">•••</button></td>
+                  <td className="px-2 py-3"><Link href={`/card/${card.id}`}><span className="text-lg leading-none text-[#6042d2]" aria-label="View card">•••</span></Link></td>
                   <td className="max-w-[100px] truncate px-2 py-3">{card.baseName || "—"}</td>
                   <td className="px-2 py-3 text-[#7370c2]">{card.hrPercent ?? 80}%</td>
                   <td className="px-2 py-3 text-[#76c7ba]">✓</td>

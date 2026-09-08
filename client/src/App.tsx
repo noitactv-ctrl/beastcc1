@@ -28,6 +28,7 @@ import SupportPage from "@/pages/SupportPage";
 import RoutingCatalogPage from "@/pages/RoutingCatalogPage";
 import LogsPage from "@/pages/LogsPage";
 import ProductDetailPage from "@/pages/ProductDetailPage";
+import CardDetailPage from "@/pages/CardDetailPage";
 import RedeemPage from "@/pages/RedeemPage";
 import LinkPage from "@/pages/LinkPage";
 
@@ -65,11 +66,13 @@ function Router() {
         <Route path="/products">{() => features.logs ? <LogsPage /> : <Redirect to="/deposit" />}</Route>
         <Route path="/logs">{() => features.logs ? <LogsPage /> : <Redirect to="/deposit" />}</Route>
         <Route path="/product/:name">{() => features.logs ? <ProductDetailPage /> : <Redirect to="/deposit" />}</Route>
+        <Route path="/card/:id" component={CardDetailPage} />
         <Route path="/order/:id" component={OrderDetailPageNew} />
         <Route path="/orders" component={OrdersPage} />
         <Route path="/checkout" component={CheckoutPage} />
         <Route path="/billing" component={DepositPage} />
         <Route path="/billing/history" component={BillingHistoryPage} />
+        <Route path="/billing/transactions" component={BillingHistoryPage} />
         <Route path="/account" component={AccountPage} />
         <Route path="/account/update" component={AccountPage} />
         <Route path="/account/password" component={AccountPage} />

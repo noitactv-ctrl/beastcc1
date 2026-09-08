@@ -7,9 +7,9 @@ import { useToast } from "@/hooks/use-toast";
 
 function AccountSubnav() {
   return (
-    <aside className="store-subnav">
+    <aside className="store-mobile-subnav lg:hidden">
       {[
-        ["Information", "/account"],
+        ["Infomation", "/account"],
         ["Update Info", "/account/update"],
         ["Change Password", "/account/password"],
         ["Backup Code", "/account/backup"],
@@ -47,7 +47,8 @@ export default function AccountPage() {
   const isPassword = path.endsWith("/password") || path === "/account";
   return (
     <div className="store-page">
-      <div className="store-breadcrumb"><strong>Account</strong><span>⌂</span><span>·</span><span>{isDestroy ? "Destroy Account" : isPassword ? "Change Password" : "Information"}</span></div>
+      <div className="store-breadcrumb hidden sm:flex"><strong>Account</strong><span>⌂</span><span>·</span><span>{isDestroy ? "Destroy Account" : isPassword ? "Change Password" : "Information"}</span></div>
+      <AccountSubnav />
       <div className="grid gap-5 lg:grid-cols-[1fr_200px]">
         <section className="store-card overflow-hidden">
           {isDestroy ? (
@@ -84,7 +85,6 @@ export default function AccountPage() {
             </>
           )}
         </section>
-        <div className="lg:hidden"><AccountSubnav /></div>
       </div>
       <div className="mt-5 flex justify-end"><button onClick={() => logout()} className="text-xs text-[#6848d8] hover:underline">Sign Out</button></div>
     </div>

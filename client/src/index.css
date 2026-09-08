@@ -235,6 +235,28 @@
   color: #6343d7;
   background: #f5f3fb;
 }
+.store-mobile-sections {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  width: 100%;
+  overflow: hidden;
+  margin-left: 5px;
+  padding-top: 7px;
+}
+.store-mobile-section {
+  display: inline-flex;
+  height: 50px;
+  align-items: center;
+  padding: 0 23px;
+  color: #6c6f80;
+  font-size: 16px;
+  white-space: nowrap;
+}
+.store-mobile-section-active {
+  color: #6545d4;
+  background: #f5f3fb;
+}
 .store-page {
   color: #656879;
   font-size: 12px;
@@ -314,6 +336,21 @@
   font-size: 12px;
 }
 .store-subnav-item:first-letter { color: #c6c7ce; }
+.store-mobile-subnav {
+  margin: 7px -2px 14px;
+  border: 1px solid #f0f0f4;
+  background: #fff;
+  padding: 26px 35px 18px;
+}
+.store-mobile-subnav .store-subnav-item {
+  padding: 13px 0;
+  font-size: 16px;
+}
+.card-detail-compact {
+  max-width: 672px;
+  margin-left: auto;
+  margin-right: auto;
+}
 
 .store-shell .pixel-panel {
   border: 1px solid #f0f0f4;
