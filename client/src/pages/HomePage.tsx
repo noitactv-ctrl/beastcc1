@@ -29,10 +29,7 @@ export default function HomePage() {
   return (
     <div className="pixel-page space-y-6">
       <section className="store-card overflow-hidden">
-        <div className="store-card-title flex items-center gap-2">
-          <span className="text-base font-bold text-[#5b5bd6]">⌁</span>
-          <span>Home</span>
-        </div>
+        <div className="store-card-title">Home</div>
         <div className="p-5 sm:p-7">
           <div className="flex flex-wrap items-end justify-between gap-5">
             <div>
