@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useFeatureVisibility } from "@/hooks/use-feature-visibility";
 import { useQuery } from "@tanstack/react-query";
 import { ShoppingBasket, Layers3, UserRound } from "lucide-react";
+import { useCart } from "@/hooks/use-cart";
 
 const primaryNav = [
   { href: "/", label: "Dashboard" },
@@ -10,6 +11,7 @@ const primaryNav = [
   { href: "/orders", label: "Order" },
   { href: "/account", label: "Account" },
   { href: "/billing", label: "Billing" },
+  { href: "/admin", label: "Admin" },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -20,10 +22,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
     staleTime: 15000,
   });
   const [location] = useLocation();
+  const cartCount = useCart(state => state.items.reduce((sum, item) => sum + item.quantity, 0) + state.cardItems.length + (state.bulkBundle ? state.bulkBundle.cardIds.length : 0));
   if (location === "/auth") return <>{children}</>;
 
   const visibleNav = primaryNav.filter(item => {
     if (item.href === "/cards") return features.cards;
+    if (item.href === "/admin") return user?.role === "admin";
     return true;
   });
   const isActive = (href: string) =>
@@ -47,7 +51,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </nav>
           <div className="ml-auto flex shrink-0 items-center gap-1.5">
             <Link href="/checkout">
-              <span className="game-top-action" aria-label="Cart"><ShoppingBasket className="h-3.5 w-3.5" /></span>
+              <span className="game-top-action relative" aria-label={`Cart${cartCount ? `, ${cartCount} items` : ""}`}><ShoppingBasket className="h-3.5 w-3.5" />{cartCount > 0 && <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center border-2 border-black bg-[#ee292b] px-0.5 font-mono text-[9px] text-white">{cartCount}</span>}</span>
             </Link>
             {user && (
               <>

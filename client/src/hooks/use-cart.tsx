@@ -19,6 +19,7 @@ export interface BulkCardItem {
   type: string;
   baseName: string;
   price: number;
+  refundable?: boolean;
 }
 
 export interface BulkCardBundle {
