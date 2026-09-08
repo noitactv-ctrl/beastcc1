@@ -9,7 +9,6 @@ import { calculateDepositCredit, DEPOSIT_BONUS_TIERS } from "@shared/deposit";
 import { ManualPaymentQrCode } from "@/components/ManualPaymentQrCode";
 import { CryptoCoinSelector, type CryptoCurrencyOption } from "@/components/CryptoCoinSelector";
 import { CryptoPaymentPanel, type CryptoInvoiceData } from "@/components/CryptoPaymentPanel";
-import { BillingSubnav } from "@/components/BillingSubnav";
 
 type Method = "crypto" | "cashapp" | "chime" | "zelle" | "venmo";
 
@@ -238,10 +237,9 @@ export default function DepositPage() {
   }
 
   return (
-    <div className="store-page">
-      <BillingSubnav />
-      <div className="store-breadcrumb hidden sm:flex"><strong>Billing</strong><span>⌂</span><span>·</span><span>Deposit</span></div>
-      <div className="store-card">
+    <div className="pixel-page space-y-5">
+      <div><p className="pixel-label">ACCOUNT FINANCE</p><h1 className="mt-3 text-xl text-white sm:text-2xl">DEPOSIT</h1></div>
+      <div className="pixel-panel bg-[#10215e]">
         {cryptoInvoice ? (
           <CryptoPaymentPanel
             invoice={cryptoInvoice}
@@ -262,7 +260,7 @@ export default function DepositPage() {
         ) : manualResult ? (
           <ManualDepositPanel result={manualResult} onReset={() => { setManualResult(null); setSelectedOption(null); setAmountInput(""); }} />
         ) : (
-          <div className="store-card space-y-4 p-4 sm:p-5">
+          <div className="space-y-4 p-4 sm:p-5">
             <div className="space-y-2">
               <p className="pixel-label">ENTER AMOUNT</p>
               <input
@@ -272,7 +270,7 @@ export default function DepositPage() {
                 value={amountInput}
                  disabled={isPending}
                 onChange={e => handleAmountChange(e.target.value)}
-                className="pixel-input h-12"
+                 className="pixel-input h-12"
                 data-testid="input-amount"
               />
               {selectedOption ? (

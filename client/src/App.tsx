@@ -21,14 +21,12 @@ import HomePage from "@/pages/HomePage";
 import CheckoutPage from "@/pages/CheckoutPage";
 import BillingHistoryPage from "@/pages/BillingHistoryPage";
 import AccountPage from "@/pages/AccountPage";
-import NewsPage from "@/pages/NewsPage";
 import RanksPage from "@/pages/RanksPage";
 import CardsPage from "@/pages/CardsPage";
 import SupportPage from "@/pages/SupportPage";
 import RoutingCatalogPage from "@/pages/RoutingCatalogPage";
 import LogsPage from "@/pages/LogsPage";
 import ProductDetailPage from "@/pages/ProductDetailPage";
-import CardDetailPage from "@/pages/CardDetailPage";
 import RedeemPage from "@/pages/RedeemPage";
 import LinkPage from "@/pages/LinkPage";
 
@@ -66,7 +64,6 @@ function Router() {
         <Route path="/products">{() => features.logs ? <LogsPage /> : <Redirect to="/deposit" />}</Route>
         <Route path="/logs">{() => features.logs ? <LogsPage /> : <Redirect to="/deposit" />}</Route>
         <Route path="/product/:name">{() => features.logs ? <ProductDetailPage /> : <Redirect to="/deposit" />}</Route>
-        <Route path="/card/:id" component={CardDetailPage} />
         <Route path="/order/:id" component={OrderDetailPageNew} />
         <Route path="/orders" component={OrdersPage} />
         <Route path="/checkout" component={CheckoutPage} />
@@ -78,12 +75,10 @@ function Router() {
         <Route path="/account/password" component={AccountPage} />
         <Route path="/account/backup" component={AccountPage} />
         <Route path="/account/destroy" component={AccountPage} />
-        <Route path="/news" component={NewsPage} />
         <Route path="/ranks">{() => features.ranks ? <RanksPage /> : <Redirect to="/deposit" />}</Route>
         <Route path="/cards">{() => features.cards ? <CardsPage /> : <Redirect to="/deposit" />}</Route>
         <Route path="/routings"><Redirect to="/deposit" /></Route>
         <Route path="/support" component={SupportPage} />
-        <Route path="/plinko"><Redirect to="/" /></Route>
         <Route path="/admin" component={AdminPage} />
         <Route component={NotFound} />
       </Switch>

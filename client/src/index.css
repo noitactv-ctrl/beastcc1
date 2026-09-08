@@ -427,3 +427,40 @@
   color: #fff !important;
 }
 
+/* Game-theme header used by the customer storefront. */
+.game-nav-link {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  border: 2px solid transparent;
+  padding: 0.45rem 0.65rem;
+  color: #abbceb;
+  font-family: var(--font-pixel);
+  font-size: 0.5rem;
+  white-space: nowrap;
+}
+.game-nav-link:hover,
+.game-nav-link-active {
+  border-color: #ffe177;
+  background: #ee292b;
+  color: #fff;
+}
+.game-top-action {
+  display: inline-flex;
+  min-height: 30px;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border: 2px solid #050505;
+  background: #ffe1aa;
+  padding: 0.4rem 0.55rem;
+  color: #17110a;
+  font-family: var(--font-pixel);
+  font-size: 0.45rem;
+  white-space: nowrap;
+  box-shadow: 2px 2px 0 #050505;
+}
+.game-top-action:hover {
+  background: #fff0c5;
+}
+
