@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
+import { Check, Send } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { useToast } from "@/hooks/use-toast";
 
@@ -51,11 +52,11 @@ export default function CardsPage() {
   const setFilter = (key: keyof Filters, value: string) => setFilters(current => ({ ...current, [key]: value }));
   const reset = () => setFilters(emptyFilters);
   const hasFilters = Object.entries(filters).some(([key, value]) => key === "base" || key === "country" || key === "brand" ? value !== "all" : Boolean(value));
-  const addToCart = (card: any, checkout = false) => {
+  const buyCard = (card: any) => {
     const alreadyInCart = useCart.getState().cardItems.some(item => item.id === card.id);
     addCard({ id: card.id, bin: cardBin(card), brand: cardBrand(card), type: String(card.binData?.type || "").toUpperCase(), country: countryCode(card) || undefined, baseName: card.baseName || "Standard", price: card.price, refundable: true });
     toast({ title: alreadyInCart ? "ALREADY IN CART" : "ADDED TO CART", description: `${cardBrand(card)} ${cardBin(card)} · REFUNDABLE` });
-    if (checkout) setLocation("/checkout");
+    setLocation("/checkout");
   };
   const selectClass = "store-select mt-1 h-10 w-full min-w-0";
 
@@ -65,12 +66,12 @@ export default function CardsPage() {
     return compact ? (
       <article key={card.id} className="border-[3px] border-black bg-[#10215e] p-4 shadow-[3px_3px_0_#050505]">
         <div className="flex items-start justify-between gap-3"><div><p className="font-mono text-[10px] text-white/45">#{index + 1} · {cardBin(card) || "NO BIN"}</p><h2 className="mt-2 text-sm text-white">{brand}</h2></div><span className="text-xl" title={code || "Unknown country"}>{flagFor(code)}</span></div>
-         <div className="mt-4 grid grid-cols-2 gap-2 text-xs"><span className="bg-[#0a1645] px-2 py-2 text-white/65">Type <b className="text-white">{String(card.binData?.type || "—").toUpperCase()}</b></span><span className="bg-[#0a1645] px-2 py-2 text-white/65">Base <b className="text-white">{card.baseName || "—"}</b></span><span className="bg-[#0a1645] px-2 py-2 text-[#72df7c]">Validation {card.hrPercent ?? 80}%</span><span className="game-check">Refundable</span></div>
-         <div className="mt-4 flex flex-wrap items-center justify-between gap-3"><span className="text-lg font-bold text-[#ffe177]">${(Number(card.price || 0) / 100).toFixed(2)}</span><div className="flex gap-2"><button onClick={() => addToCart(card)} className="pixel-button px-3 py-2">Add</button><button onClick={() => addToCart(card, true)} className="pixel-button !bg-[#ee292b] px-3 py-2 !text-white">Buy</button></div></div>
+          <div className="mt-4 grid grid-cols-2 gap-2 text-xs"><span className="bg-[#0a1645] px-2 py-2 text-white/65">Type <b className="text-white">{String(card.binData?.type || "—").toUpperCase()}</b></span><span className="bg-[#0a1645] px-2 py-2 text-white/65">Base <b className="text-white">{card.baseName || "—"}</b></span><span className="bg-[#0a1645] px-2 py-2 text-[#72df7c]">Validation {card.hrPercent ?? 80}%</span><span className="store-check" title="Refundable" aria-label="Refundable"><Check className="h-3.5 w-3.5" /></span></div>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3"><span className="text-lg font-bold text-[#ffe177]">${(Number(card.price || 0) / 100).toFixed(2)}</span><button onClick={() => buyCard(card)} className="store-buy-button" aria-label={`Buy ${brand} ${cardBin(card)}`} title="Buy"><Send className="h-4 w-4" /></button></div>
       </article>
     ) : (
        <tr key={card.id} className="border-b border-black/40 text-white/80 transition-colors hover:bg-[#19377e]">
-         <td className="px-3 py-3 text-white/55">#{index + 1}</td><td className="px-3 py-3 font-bold text-[#ffe177]">{brand}</td><td className="px-3 py-3 text-[#ffe177]">{cardBin(card) || "—"}</td><td className="px-3 py-3">{String(card.binData?.type || "—").toUpperCase()}</td><td className="px-3 py-3">{flagFor(code)} {code || "—"}</td><td className="px-3 py-3">{card.baseName || "—"}</td><td className="px-3 py-3 text-[#72df7c]">{card.hrPercent ?? 80}%</td><td className="px-3 py-3"><span className="game-check">Yes</span></td><td className="px-3 py-3 font-bold text-[#ffe177]">${(Number(card.price || 0) / 100).toFixed(2)}</td><td className="px-3 py-3"><div className="flex gap-2"><button onClick={() => addToCart(card)} className="pixel-button px-2 py-2">Add</button><button onClick={() => addToCart(card, true)} className="pixel-button !bg-[#ee292b] px-2 py-2 !text-white">Buy</button></div></td>
+          <td className="px-3 py-3 text-white/55">#{index + 1}</td><td className="px-3 py-3 font-bold text-[#ffe177]">{brand}</td><td className="px-3 py-3 text-[#ffe177]">{cardBin(card) || "—"}</td><td className="px-3 py-3">{String(card.binData?.type || "—").toUpperCase()}</td><td className="px-3 py-3">{flagFor(code)} {code || "—"}</td><td className="px-3 py-3">{card.baseName || "—"}</td><td className="px-3 py-3 text-[#72df7c]">{card.hrPercent ?? 80}%</td><td className="px-3 py-3"><span className="store-check" title="Refundable" aria-label="Refundable"><Check className="h-3.5 w-3.5" /></span></td><td className="px-3 py-3 font-bold text-[#ffe177]">${(Number(card.price || 0) / 100).toFixed(2)}</td><td className="px-3 py-3"><button onClick={() => buyCard(card)} className="store-buy-button" aria-label={`Buy ${brand} ${cardBin(card)}`} title="Buy"><Send className="h-4 w-4" /></button></td>
       </tr>
     );
   };
@@ -89,7 +90,7 @@ export default function CardsPage() {
         </div>
       </section>
         <section className="hidden overflow-hidden border-[3px] border-black bg-[#10215e] md:block">
-        <div className="overflow-x-auto"><table className="min-w-[1120px] w-full border-collapse text-xs"><thead><tr className="border-b-[3px] border-black text-left text-[#abbceb]">{["#", "BRAND", "BIN", "TYPE", "COUNTRY", "BASE", "VALID RATE", "REFUNDABLE", "PRICE", "ADD TO CART"].map(label => <th key={label} className="whitespace-nowrap px-3 py-3 font-semibold">{label}</th>)}</tr></thead><tbody>{isLoading ? <tr><td colSpan={10} className="py-10 text-center font-mono text-xs text-[#abbceb]">LOADING...</td></tr> : visibleCards.length === 0 ? <tr><td colSpan={10} className="py-10 text-center font-mono text-xs text-[#abbceb]">NO CARDS FOUND</td></tr> : visibleCards.map((card, index) => cardDetails(card, index))}</tbody></table></div>
+         <div className="overflow-x-auto"><table className="min-w-[1120px] w-full border-collapse text-xs"><thead><tr className="border-b-[3px] border-black text-left text-[#abbceb]">{["#", "BRAND", "BIN", "TYPE", "COUNTRY", "BASE", "VALID RATE", "CHECKER", "PRICING", "BUY"].map(label => <th key={label} className="whitespace-nowrap px-3 py-3 font-semibold">{label}</th>)}</tr></thead><tbody>{isLoading ? <tr><td colSpan={10} className="py-10 text-center font-mono text-xs text-[#abbceb]">LOADING...</td></tr> : visibleCards.length === 0 ? <tr><td colSpan={10} className="py-10 text-center font-mono text-xs text-[#abbceb]">NO CARDS FOUND</td></tr> : visibleCards.map((card, index) => cardDetails(card, index))}</tbody></table></div>
       </section>
       <section className="space-y-3 md:hidden">{isLoading ? <div className="pixel-panel bg-[#10215e] py-10 text-center font-mono text-xs text-[#abbceb]">LOADING...</div> : visibleCards.length === 0 ? <div className="pixel-panel bg-[#10215e] py-10 text-center font-mono text-xs text-[#abbceb]">NO CARDS FOUND</div> : visibleCards.map((card, index) => cardDetails(card, index, true))}</section>
     </div>
