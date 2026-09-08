@@ -11,7 +11,7 @@ const primaryNav = [
   { href: "/cards", label: "Shop" },
   { href: "/orders", label: "Order" },
   { href: "/account", label: "Account" },
-  { href: "/billing/history", label: "Billing" },
+  { href: "/billing", label: "Billing" },
   { href: "/admin", label: "Admin" },
 ];
 
@@ -59,7 +59,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </Link>
             {user && (
               <>
-                <Link href="/billing/history">
+                <Link href="/billing">
                   <span className="game-top-action hidden gap-1.5 font-semibold text-[#ffe177] sm:inline-flex">
                     ${(user.balance / 100).toFixed(2)}
                   </span>

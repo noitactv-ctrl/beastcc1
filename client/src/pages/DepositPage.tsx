@@ -237,7 +237,7 @@ export default function DepositPage() {
   }
 
   return (
-    <div className="pixel-page space-y-5">
+    <div className="deposit-page pixel-page space-y-5">
       <div><p className="pixel-label">ACCOUNT FINANCE</p><h1 className="mt-3 text-xl text-white sm:text-2xl">DEPOSIT</h1></div>
       <div className="pixel-panel bg-[#10215e]">
         {cryptoInvoice ? (

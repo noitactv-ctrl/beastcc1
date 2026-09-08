@@ -823,6 +823,43 @@
   background: #fff6f7;
   color: #c96875;
 }
+.calm-shell .deposit-page [class*="bg-[#18296d]"],
+.calm-shell .deposit-page [class*="bg-[#0a1645]"],
+.calm-shell .deposit-page [class*="bg-[#0b1849]"],
+.calm-shell .deposit-page [class*="bg-[#152d75]"],
+.calm-shell .deposit-page [class*="bg-[#17337d]"],
+.calm-shell .deposit-page [class*="bg-[#2555c5]"],
+.calm-shell .deposit-page [class*="bg-[#10215e]"] {
+  background-color: #fff !important;
+}
+.calm-shell .deposit-page [class*="bg-[#152d75]"],
+.calm-shell .deposit-page [class*="bg-[#17337d]"],
+.calm-shell .deposit-page [class*="bg-[#2555c5]"] {
+  background-color: #f0efff !important;
+}
+.calm-shell .deposit-page [class*="border-[#080f2c]"],
+.calm-shell .deposit-page [class*="border-[#0e1b4e]"] {
+  border-color: #ececf2 !important;
+}
+.calm-shell .deposit-page [class*="text-[#fff0c5]"] {
+  color: #3e4050 !important;
+}
+.calm-shell .deposit-page [class*="text-white/70"],
+.calm-shell .deposit-page [class*="text-white/55"],
+.calm-shell .deposit-page [class*="text-white/45"],
+.calm-shell .deposit-page [class*="text-white/25"],
+.calm-shell .deposit-page [class*="text-white/20"] {
+  color: #858896 !important;
+}
+.calm-shell .deposit-page [class*="bg-[#43b94e]"] {
+  background-color: #5b5bd6 !important;
+}
+.calm-shell .deposit-page [class*="hover:bg-[#31973a]"]:hover {
+  background-color: #4f50c7 !important;
+}
+.calm-shell .deposit-page button {
+  border-radius: 0.45rem;
+}
 .calm-shell .store-label {
   color: #888b9b;
   font-family: 'Inter', sans-serif;
