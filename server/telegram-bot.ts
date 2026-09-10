@@ -626,6 +626,8 @@ async function syncAllLinkedUsers(): Promise<void> {
         // A single user's membership check must not stop the reward sweep.
       }
     }
+  } catch {
+    // A transient database or Telegram configuration failure must not stop the bot or app.
   } finally {
     profileSyncRunning = false;
   }
@@ -637,12 +639,12 @@ function delay(ms: number): Promise<void> {
 
 async function pollingLoop(): Promise<void> {
   while (polling) {
-    const config = await getTelegramConfig();
-    if (!config.token) {
-      await delay(60_000);
-      continue;
-    }
     try {
+      const config = await getTelegramConfig();
+      if (!config.token) {
+        await delay(60_000);
+        continue;
+      }
       const updates = await telegramApi<any[]>("getUpdates", {
         offset: updateOffset,
         timeout: 25,
