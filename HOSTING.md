@@ -136,7 +136,7 @@ Install Caddy using its official repository instructions, then create a
 `/etc/caddy/Caddyfile` entry like this:
 
 ```text
-your-domain.example {
+   TurtleCC.xyz, www.TurtleCC.xyz {
     reverse_proxy 127.0.0.1:5000
 }
 ```
@@ -243,7 +243,7 @@ For Plisio crypto checkout, the public site must be reachable over HTTPS and
 the provider must be able to reach:
 
 ```text
-https://your-domain.example/api/webhooks/plisio?json=true
+https://TurtleCC.xyz/api/webhooks/plisio?json=true
 ```
 
 Set the public app URL in the environment or admin integration settings, add
@@ -292,7 +292,7 @@ npm run check
 npm run build
 docker compose up -d --build
 docker compose ps
-curl -fsS https://your-domain.example/api/health
+   curl -fsS https://TurtleCC.xyz/api/health
 ```
 
 Take a database backup before schema changes. Never run `docker compose down -v`
