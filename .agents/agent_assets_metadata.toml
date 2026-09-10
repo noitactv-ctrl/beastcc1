@@ -308,3 +308,31 @@ mtime_ms = 1788631786890
 storage_uri = "gcs://replit-rams-assets-worf/rams/assets/repl:de412c82-1f7b-4596-a5e9-5be1edbed74d/016185ab-c4f3-4da5-abfe-3545a70d2292/f444c0d3-5b0e-484b-a97d-bf9892b58c1b"
 storage_version_token = "1788631791366890"
 content_type = "application/octet-stream"
+
+[[outputs]]
+id = "18KMXib0Xj_vftlgXaE3n"
+uri = "file://Deploy-TurtleCC.ps1"
+type = "unspecified"
+title = "TurtleCC PowerShell deployment script"
+description = "Run this on your Windows laptop to back up the VPS database, upload the latest TurtleCC source, restore data into the rotated PostgreSQL database, and rebuild the VPS app."
+logical_id = "a15469ab-87cf-43cb-97dd-531eeebdcb1e"
+content_hash = "sha256:bad679b6a2e2d3f8bf4e79ac29790a60dd9129c735fa13567bfeefc9d71c0a94"
+size = 7262
+mtime_ms = 1789075900349
+storage_uri = "gcs://replit-rams-assets-worf/rams/assets/repl:de412c82-1f7b-4596-a5e9-5be1edbed74d/a15469ab-87cf-43cb-97dd-531eeebdcb1e/485c5a32-a6a1-40b7-a834-29cdb897665b"
+storage_version_token = "1789075921507782"
+content_type = "application/octet-stream"
+
+[[outputs]]
+id = "MFHPiObpZDVRU5Ba3SUO4"
+uri = "file://VPS-DEPLOY-POWERSHELL-GUIDE.md"
+type = "text"
+title = "TurtleCC beginner PowerShell deployment guide"
+description = "Step-by-step Windows PowerShell instructions for SSH, deployment, DNS, HTTPS, and verification."
+logical_id = "c98023d7-3ac0-4f79-8750-7042c6c83755"
+content_hash = "sha256:e630d10b903832377f3a98ef6f19d4bc48f9f7dbec63a952c1d0ffe17734e923"
+size = 3559
+mtime_ms = 1789075902910
+storage_uri = "gcs://replit-rams-assets-worf/rams/assets/repl:de412c82-1f7b-4596-a5e9-5be1edbed74d/c98023d7-3ac0-4f79-8750-7042c6c83755/e90afb76-6b3e-47d2-b9e3-25d486257b43"
+storage_version_token = "1789075922319988"
+content_type = "text/markdown"
