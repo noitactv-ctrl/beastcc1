@@ -2,7 +2,9 @@ FROM node:20-bookworm-slim AS build
 
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+# Railway may provide NODE_ENV=production during the image build. The
+# compiler and bundler are devDependencies, so keep them in the build stage.
+RUN npm ci --include=dev
 
 COPY . .
 RUN npm run check
