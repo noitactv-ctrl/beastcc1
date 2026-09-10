@@ -14,6 +14,7 @@ export const users = pgTable("users", {
   role: text("role", { enum: ["user", "admin"] }).default("user").notNull(),
   isBanned: boolean("is_banned").default(false).notNull(),
   isWorker: boolean("is_worker").default(false).notNull(),
+  isOwner: boolean("is_owner").default(false).notNull(),
   balance: integer("balance").default(0).notNull(),
   protectedBalance: integer("protected_balance").default(0).notNull(),
   lastDailySpin: timestamp("last_daily_spin"),
@@ -31,6 +32,7 @@ export const insertUserSchema = createInsertSchema(users).omit({
   id: true, 
   role: true, 
   isBanned: true, 
+  isOwner: true,
   createdAt: true,
   telegramUsername: true,
   balance: true,
@@ -117,7 +119,7 @@ export const insertVariantSchema = createInsertSchema(variants).omit({ id: true 
 export const stockItems = pgTable("stock_items", {
   id: serial("id").primaryKey(),
   variantId: integer("variant_id").notNull().references(() => variants.id),
-  sellerId: integer("seller_id").references(() => users.id), // NULL = admin/BEASTCC (top tier)
+  sellerId: integer("seller_id").references(() => users.id), // NULL = admin/TurtleCC (top tier)
   content: text("content").notNull(),
   isSold: boolean("is_sold").default(false).notNull(),
   isReserved: boolean("is_reserved").default(false).notNull(),

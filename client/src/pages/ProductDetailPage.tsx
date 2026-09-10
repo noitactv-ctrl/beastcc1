@@ -17,7 +17,7 @@ function DetailArtwork({ image, name }: { image?: string | null; name: string })
 export default function ProductDetailPage() {
   const [, params] = useRoute("/product/:name");
   const { toast } = useToast();
-  const addItem = useCart(state => state.addItem);
+  const { addItem, bulkBundle } = useCart();
   const { data: products, isLoading, isError, refetch } = useProducts();
   const productName = decodeURIComponent(params?.name ?? "");
   const product = products?.find(item => item.name === productName);
@@ -45,6 +45,7 @@ export default function ProductDetailPage() {
     mutationFn: async () => {
       if (!selectedVariant) throw new Error("Select an option first");
       if (quantity < minQuantity || quantity > maxQuantity) throw new Error("Quantity is no longer available");
+      if (bulkBundle) throw new Error("Remove the 20-card bulk bundle before adding products.");
       addItem({
         variantId: selectedVariant.id,
         productId: product!.id,

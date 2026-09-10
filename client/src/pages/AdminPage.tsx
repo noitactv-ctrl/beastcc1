@@ -75,7 +75,7 @@ export default function AdminPage() {
       <aside className="hidden md:flex w-52 shrink-0 flex-col border-r border-white/10 bg-[#111]">
         <div className="px-5 py-5 border-b border-white/8">
           <p className="text-base font-black text-white">
-             BEASTCC
+             TurtleCC
           </p>
           <p className="text-[10px] text-white/40 uppercase tracking-widest font-mono mt-0.5">Admin</p>
         </div>
@@ -123,7 +123,7 @@ export default function AdminPage() {
         <header className="md:hidden shrink-0 flex items-center justify-between px-4 py-3 bg-[#111] border-b border-white/10">
           <div>
             <p className="text-sm font-black text-white">
-                BEASTCC
+                TurtleCC
               <span className="ml-1.5 text-xs font-normal text-white/40">Admin</span>
             </p>
             <p className="text-[10px] text-white/40 font-mono">{activeLabel}</p>
@@ -144,7 +144,7 @@ export default function AdminPage() {
             {activeSection === "products"     && <ProductsSection />}
             {activeSection === "orders"       && <OrdersSection />}
             {activeSection === "cashapp"      && <CashAppSection />}
-            {activeSection === "users"        && <UsersSection canManageStaff={isOwner} />}
+            {activeSection === "users"        && <UsersSection canManageStaff={isOwner} canManageOwners={Boolean((user as any)?.isPrimaryOwner)} />}
             {activeSection === "support"      && <SupportSection />}
             {activeSection === "deposits"     && <DepositsSection />}
             {activeSection === "codes"        && <CodesSection />}
@@ -371,7 +371,7 @@ function CreditBotSection() {
                 id="credit-bot-required-name"
                 value={requiredName}
                 onChange={event => setRequiredName(event.target.value)}
-                placeholder="beastcc.xyz"
+                placeholder="TurtleCC"
                 className="border-white/10 bg-black/20 font-mono"
                 data-testid="input-credit-bot-required-name"
               />
@@ -2041,7 +2041,7 @@ function CopyLoginCode({ code, userId }: { code: string; userId: number }) {
   );
 }
 
-function UsersSection({ canManageStaff }: { canManageStaff: boolean }) {
+function UsersSection({ canManageStaff, canManageOwners }: { canManageStaff: boolean; canManageOwners: boolean }) {
   const { toast } = useToast();
   const qc = useQueryClient();
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -2125,6 +2125,20 @@ function UsersSection({ canManageStaff }: { canManageStaff: boolean }) {
     onError: (e: any) => toast({ title: 'Error', description: e.message, variant: 'destructive' }),
   });
 
+  const setOwnerMutation = useMutation({
+    mutationFn: async ({ userId, isOwner }: { userId: number; isOwner: boolean }) => {
+      const res = await apiRequest('POST', `/api/admin/users/${userId}/set-owner`, { isOwner });
+      if (!res.ok) { const e = await res.json(); throw new Error(e.message || 'Failed'); }
+      return res.json();
+    },
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ['/api/admin/users'] });
+      setSelectedUser((u: any) => u ? { ...u, isOwner: data.isOwner, role: data.role } : null);
+      toast({ title: data.isOwner ? 'Owner access granted' : 'Owner access removed' });
+    },
+    onError: (e: any) => toast({ title: 'Error', description: e.message, variant: 'destructive' }),
+  });
+
   if (isLoading) return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-primary" /></div>;
 
   const filtered = (users ?? []).filter((u: any) =>
@@ -2144,6 +2158,7 @@ function UsersSection({ canManageStaff }: { canManageStaff: boolean }) {
             </div>
             <div className="flex gap-2 items-center">
               {selectedUser.isBanned && <Badge className="bg-red-500/20 text-red-400 text-[9px]">BANNED</Badge>}
+              {selectedUser.isOwner && <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/30 text-[9px]">OWNER</Badge>}
               <Badge className={selectedUser.role === "admin" ? "bg-primary/20 text-primary border-primary/30" : "bg-[#0d0d0d] text-white/45 border-white/10"}>
                 {selectedUser.role}
               </Badge>
@@ -2211,6 +2226,27 @@ function UsersSection({ canManageStaff }: { canManageStaff: boolean }) {
                 Remove Admin
               </button>
             )}
+            {canManageOwners && !selectedUser.isPrimaryOwner && (
+              selectedUser.isOwner ? (
+                <button
+                  onClick={() => { if (confirm("Remove owner access from this user? They will remain an admin.")) setOwnerMutation.mutate({ userId: selectedUser.id, isOwner: false }); }}
+                  disabled={setOwnerMutation.isPending}
+                  className="h-7 px-3 border border-yellow-700/40 text-yellow-500 text-xs font-bold rounded hover:bg-yellow-900/20 transition-colors disabled:opacity-40"
+                  data-testid={`btn-remove-owner-${selectedUser.id}`}
+                >
+                  Remove Owner
+                </button>
+              ) : (
+                <button
+                  onClick={() => { if (confirm("Grant this user owner access?")) setOwnerMutation.mutate({ userId: selectedUser.id, isOwner: true }); }}
+                  disabled={setOwnerMutation.isPending}
+                  className="h-7 px-3 bg-yellow-600/80 hover:bg-yellow-600 text-white text-xs font-bold rounded transition-colors disabled:opacity-40"
+                  data-testid={`btn-make-owner-${selectedUser.id}`}
+                >
+                  Make Owner
+                </button>
+              )
+            )}
             {selectedUser.isWorker ? (
               <button
                 onClick={() => setWorkerMutation.mutate({ userId: selectedUser.id, isWorker: false })}
@@ -2252,11 +2288,16 @@ function UsersSection({ canManageStaff }: { canManageStaff: boolean }) {
               </button>
             )}
           </div>
-          {!canManageStaff && (
+           {!canManageStaff && (
             <p className="text-[10px] text-white/40 border-t border-white/10 pt-2">
               Only the owner can manage admin and worker access.
             </p>
           )}
+           {canManageOwners && (
+             <p className="text-[10px] text-white/40 border-t border-white/10 pt-2">
+               You are the primary owner. Additional owners cannot remove your access.
+             </p>
+           )}
 
           <div className="text-[9px] text-white/30 font-mono pt-1 border-t border-white/10 space-y-0.5">
             <p>Joined: {new Date(selectedUser.createdAt).toLocaleDateString()}</p>

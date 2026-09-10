@@ -14,7 +14,7 @@ const REWARD_AMOUNT_SETTING = "credit_bot_reward_cents";
 const DEFAULT_REWARD_CENTS = 25;
 const REWARD_INTERVAL_MS = 24 * 60 * 60 * 1000;
 const PROFILE_SYNC_INTERVAL_MS = 30 * 1000;
-const BRAND_NAME = "beastcc.xyz";
+const BRAND_NAME = "TurtleCC";
 const DEFAULT_REQUIRED_NAME = BRAND_NAME;
 const LINK_TOKEN_TTL_MS = 30 * 60 * 1000;
 
@@ -68,13 +68,16 @@ async function getTelegramConfig(): Promise<TelegramConfig> {
   }
 
   const storedEnabled = await readSetting(ENABLED_SETTING);
+  const storedRequiredName = (await readSetting(REQUIRED_NAME_SETTING)).trim();
   const storedReward = Number(await readSetting(REWARD_AMOUNT_SETTING));
   return {
     token: storedToken || process.env.TELEGRAM_BOT_TOKEN?.trim() || "",
     channelId: (await readSetting(CHANNEL_SETTING)) || process.env.Telegram_group_id?.trim() || "",
     channelLink: await readSetting(CHANNEL_LINK_SETTING),
     botName: await readSetting(BOT_NAME_SETTING),
-    requiredName: (await readSetting(REQUIRED_NAME_SETTING)).trim() || DEFAULT_REQUIRED_NAME,
+    requiredName: !storedRequiredName || storedRequiredName.toLowerCase() === "beastcc.xyz"
+      ? DEFAULT_REQUIRED_NAME
+      : storedRequiredName,
     enabled: storedEnabled !== "false",
     rewardCents: Number.isInteger(storedReward) && storedReward > 0 && storedReward <= 100000
       ? storedReward
@@ -503,7 +506,7 @@ function getStartMessage(config: TelegramConfig): {
   }
 
   return {
-    text: `👋 Welcome to the beastcc.xyz rewards bot!\n\nEarn ${formatCredit(config.rewardCents)} in store credit every 24 hours.\n\nRules:\n• <code>${escapeTelegramHtml(config.requiredName)}</code> must be in your first or last name.\n• You must be part of our main channel.\n\nTo start, send your 16-digit account number from beastcc.xyz/link. If you need to change accounts later, use /relink followed by a new number.`,
+    text: `👋 Welcome to the TurtleCC rewards bot!\n\nEarn ${formatCredit(config.rewardCents)} in store credit every 24 hours.\n\nRules:\n• <code>${escapeTelegramHtml(config.requiredName)}</code> must be in your first or last name.\n• You must be part of our main channel.\n\nTo start, send your 16-digit account number from beastcc.xyz/link. If you need to change accounts later, use /relink followed by a new number.`,
     ...(inlineKeyboard.length ? { replyMarkup: { inline_keyboard: inlineKeyboard } } : {}),
   };
 }
@@ -547,7 +550,7 @@ async function handleMessage(message: any, config: TelegramConfig): Promise<void
       return;
     }
     const result = await synchronizeUser(claimed, from, config);
-    await sendTelegramMessage(chatId, `✅ Your beastcc.xyz account was relinked.\n\n${await statusMessage(claimed, from, config, result)}`, config.token);
+    await sendTelegramMessage(chatId, `✅ Your TurtleCC account was relinked.\n\n${await statusMessage(claimed, from, config, result)}`, config.token);
     return;
   }
   if (command === "/status" && linked) {
@@ -563,7 +566,7 @@ async function handleMessage(message: any, config: TelegramConfig): Promise<void
       return;
     }
       const result = await synchronizeUser(claimed, from, config);
-      await sendTelegramMessage(chatId, `✅ Your beastcc.xyz account is linked.\n\n${await statusMessage(claimed, from, config, result)}`, config.token);
+       await sendTelegramMessage(chatId, `✅ Your TurtleCC account is linked.\n\n${await statusMessage(claimed, from, config, result)}`, config.token);
     return;
   }
 
