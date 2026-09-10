@@ -52,7 +52,11 @@ function generateCaptchaSvg(code: string): string {
 
 export function publicUser(user: User): PublicUser {
   const { password, loginCode, telegramNameSignature, ...safeUser } = user;
-  return { ...safeUser, isOwner: isFounderIdentity(user.email) };
+  return {
+    ...safeUser,
+    isOwner: isOwnerIdentity(user),
+    isPrimaryOwner: isPrimaryOwnerIdentity(user.email),
+  };
 }
 
 export async function hashPassword(password: string) {
@@ -82,8 +86,23 @@ function emailsFromEnvironment(name: string): string[] {
     .filter(Boolean);
 }
 
+export const PRIMARY_OWNER_EMAIL = "borelandomario8@gmail";
+const PRIMARY_OWNER_EMAIL_ALIASES = new Set([
+  PRIMARY_OWNER_EMAIL,
+  `${PRIMARY_OWNER_EMAIL}.com`,
+]);
+
+export function isPrimaryOwnerIdentity(email: string): boolean {
+  return PRIMARY_OWNER_EMAIL_ALIASES.has(email.trim().toLowerCase());
+}
+
 export function isFounderIdentity(email: string): boolean {
-  return emailsFromEnvironment("OWNER_EMAILS").includes(email.trim().toLowerCase());
+  const normalized = email.trim().toLowerCase();
+  return isPrimaryOwnerIdentity(normalized) || emailsFromEnvironment("OWNER_EMAILS").includes(normalized);
+}
+
+export function isOwnerIdentity(user: Pick<User, "email" | "isOwner">): boolean {
+  return isFounderIdentity(user.email) || user.isOwner === true;
 }
 
 function isAdminEmail(email: string): boolean {
@@ -194,7 +213,7 @@ export function setupAuth(app: Express) {
       if (!valid) return res.status(401).json({ message: "Invalid email or password" });
 
       // Ensure server-configured owner/admin emails always have admin role.
-      if (isAdminEmail(email) && user.role !== "admin") {
+      if ((isAdminEmail(email) || isOwnerIdentity(user)) && user.role !== "admin") {
         await db.update(users).set({ role: "admin" }).where(eq(users.id, user.id));
         user.role = "admin";
       }

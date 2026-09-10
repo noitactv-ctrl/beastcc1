@@ -10,6 +10,7 @@ import {
 
 export type PublicUser = Omit<typeof users.$inferSelect, 'password' | 'loginCode' | 'telegramNameSignature'> & {
   isOwner: boolean;
+  isPrimaryOwner: boolean;
 };
 
 export const errorSchemas = {

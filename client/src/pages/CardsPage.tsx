@@ -120,6 +120,8 @@ export default function CardsPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const cardItems = useCart(s => s.cardItems);
+  const cartItems = useCart(s => s.items);
+  const bulkBundle = useCart(s => s.bulkBundle);
   const addCard = useCart(s => s.addCard);
   const setBulkBundle = useCart(s => s.setBulkBundle);
   const directCartIds = useMemo(() => new Set(cardItems.map(card => card.id)), [cardItems]);
@@ -216,8 +218,8 @@ export default function CardsPage() {
 
   const addBulkBundle = () => {
     if (cartCards.length !== 20) return;
-    if (cardItems.length > 0) {
-      toast({ title: "CLEAR REGULAR CARDS FIRST", description: "Finish or remove regular card items before creating a bulk bundle.", variant: "destructive" });
+    if (cardItems.length > 0 || cartItems.length > 0) {
+      toast({ title: "CLEAR OTHER CART ITEMS FIRST", description: "Finish or remove regular products/cards before creating a bulk bundle.", variant: "destructive" });
       return;
     }
     const originalTotal = cartCards.reduce((total: number, card: any) => total + card.price, 0);
@@ -244,6 +246,10 @@ export default function CardsPage() {
   };
 
   const addCardToCart = (card: any) => {
+    if (bulkBundle || cartItems.length > 0) {
+      toast({ title: "CLEAR OTHER CART ITEMS FIRST", description: "Bulk bundles and regular products/cards cannot be combined.", variant: "destructive" });
+      return;
+    }
     if (directCartIds.has(card.id)) {
       toast({ title: "ALREADY IN CART", description: "This card is already in your cart." });
       return;

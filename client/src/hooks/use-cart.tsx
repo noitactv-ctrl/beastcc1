@@ -28,10 +28,21 @@ export interface BulkCardBundle {
   discountedTotal: number;
 }
 
+export interface AppliedDiscount {
+  id: number;
+  code: string;
+  type: "percent" | "fixed";
+  value: number;
+  discountAmount: number;
+  baseTotal: number;
+}
+
 interface CartStore {
   items: CartItem[];
   cardItems: BulkCardItem[];
   bulkBundle: BulkCardBundle | null;
+  discountInput: string;
+  appliedDiscount: AppliedDiscount | null;
   userId: number | null;
   addItem: (item: CartItem) => void;
   addCard: (card: BulkCardItem) => void;
@@ -40,6 +51,8 @@ interface CartStore {
   updateQuantity: (variantId: number, quantity: number) => void;
   setBulkBundle: (bundle: BulkCardBundle) => void;
   clearBulkBundle: () => void;
+  setDiscountInput: (value: string) => void;
+  setAppliedDiscount: (discount: AppliedDiscount | null) => void;
   clearCart: () => void;
   setUserId: (id: number | null) => void;
   total: () => number;
@@ -51,6 +64,8 @@ export const useCart = create<CartStore>()(
       items: [],
       cardItems: [],
       bulkBundle: null,
+      discountInput: "",
+      appliedDiscount: null,
       userId: null,
       addItem: (newItem) => set((state) => {
         const existing = state.items.find((i) => i.variantId === newItem.variantId);
@@ -81,13 +96,34 @@ export const useCart = create<CartStore>()(
           i.variantId === variantId ? { ...i, quantity } : i
         ),
       })),
-      setBulkBundle: (bundle) => set({ items: [], cardItems: [], bulkBundle: bundle }),
-      clearBulkBundle: () => set({ bulkBundle: null }),
-      clearCart: () => set({ items: [], cardItems: [], bulkBundle: null }),
+       setBulkBundle: (bundle) => set({
+         items: [],
+         cardItems: [],
+         bulkBundle: bundle,
+         discountInput: "",
+         appliedDiscount: null,
+       }),
+       clearBulkBundle: () => set({ bulkBundle: null, discountInput: "", appliedDiscount: null }),
+       setDiscountInput: (value) => set({ discountInput: value }),
+       setAppliedDiscount: (discount) => set({ appliedDiscount: discount }),
+       clearCart: () => set({
+         items: [],
+         cardItems: [],
+         bulkBundle: null,
+         discountInput: "",
+         appliedDiscount: null,
+       }),
       setUserId: (id) => {
         const current = get();
         if (current.userId !== id) {
-          set({ items: [], cardItems: [], bulkBundle: null, userId: id });
+           set({
+             items: [],
+             cardItems: [],
+             bulkBundle: null,
+             discountInput: "",
+             appliedDiscount: null,
+             userId: id,
+           });
         }
       },
       total: () => get().items.reduce((acc, item) => acc + (item.price * item.quantity), 0),

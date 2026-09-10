@@ -2,7 +2,7 @@ import express, { type Express } from "express";
 import { createServer, type Server } from "http";
 import rateLimit from "express-rate-limit";
 import { storage } from "./storage";
-import { setupAuth, isFounderIdentity, publicUser } from "./auth";
+import { setupAuth, isFounderIdentity, isOwnerIdentity, isPrimaryOwnerIdentity, publicUser } from "./auth";
 import { api } from "@shared/routes";
 import { z } from "zod";
 import { createPlisioInvoice, mapPlisioStatus, PlisioInvoiceCreationError, verifyPlisioWebhook } from "./plisio";
@@ -46,12 +46,26 @@ function isAdminOrWorker(req: any): boolean {
 
 function isOwner(req: any): boolean {
   const u = req.user as any;
-  return req.isAuthenticated() && isFounderIdentity(u?.email || "");
+  return req.isAuthenticated() && u && isOwnerIdentity({
+    email: u.email || "",
+    isOwner: u.isOwner === true,
+  });
+}
+
+function isPrimaryOwner(req: any): boolean {
+  const u = req.user as any;
+  return req.isAuthenticated() && isPrimaryOwnerIdentity(u?.email || "");
 }
 
 function requireOwner(req: any, res: any): boolean {
   if (isOwner(req)) return true;
   res.status(403).json({ message: "Only the owner can access this control" });
+  return false;
+}
+
+function requirePrimaryOwner(req: any, res: any): boolean {
+  if (isPrimaryOwner(req)) return true;
+  res.status(403).json({ message: "Only the primary owner can manage owner access" });
   return false;
 }
 
@@ -596,8 +610,12 @@ export async function registerRoutes(
         .map((i: any) => ({ ...i, sellerId: sellerId || i.sellerId || undefined }));
       const bulkCardIdList: number[] = bulkCardIds || [];
       const cardIdList: number[] = bulkCardIdList.length > 0 ? bulkCardIdList : (cardIds || []);
+      const parsedDiscountCodeId = discountCodeId == null || discountCodeId === "" ? null : Number(discountCodeId);
+      if (parsedDiscountCodeId !== null && !Number.isSafeInteger(parsedDiscountCodeId)) {
+        return res.status(400).json({ message: "Invalid discount code" });
+      }
 
-      const order = await storage.createOrder(userId, productItems, cardIdList, discountCodeId ?? null, bulkCardIdList);
+      const order = await storage.createOrder(userId, productItems, cardIdList, parsedDiscountCodeId, bulkCardIdList);
       res.status(201).json(order);
     } catch (e: any) {
       res.status(400).json({ message: e.message });
@@ -1057,7 +1075,7 @@ export async function registerRoutes(
     }
     try {
       const target = await storage.getUser(Number(req.params.id));
-      if (target && isFounderIdentity(target.email || "")) {
+      if (target && isOwnerIdentity(target)) {
         return res.status(403).json({ message: "Cannot modify the owner account" });
       }
       const user = await storage.banUser(Number(req.params.id));
@@ -1074,7 +1092,7 @@ export async function registerRoutes(
     }
     try {
       const target = await storage.getUser(Number(req.params.id));
-      if (target && isFounderIdentity(target.email || "")) {
+      if (target && isOwnerIdentity(target)) {
         return res.status(403).json({ message: "Cannot modify the owner account" });
       }
       const user = await storage.unbanUser(Number(req.params.id));
@@ -1372,8 +1390,8 @@ export async function registerRoutes(
       if (updates.enabled !== undefined && updates.enabled !== before.enabled) {
         await broadcastTelegramMessage(
           updates.enabled
-            ? "✅ The beastcc.xyz rewards bot is back up."
-            : "⚠️ The beastcc.xyz rewards bot is turned off right now. We’ll let you know when it’s back up.",
+            ? "✅ The TurtleCC rewards bot is back up."
+            : "⚠️ The TurtleCC rewards bot is turned off right now. We’ll let you know when it’s back up.",
         );
       }
       res.json(status);
@@ -1471,8 +1489,12 @@ export async function registerRoutes(
     if (!isAdminOrWorker(req)) return res.status(401).json({ message: "Unauthorized" });
     const allUsers = await storage.getAllUsers();
     res.json(allUsers
-      .filter((u: any) => !isFounderIdentity(u.email || ""))
-      .map(userWithoutPassword));
+      .filter((u: any) => !isPrimaryOwnerIdentity(u.email || ""))
+      .map(user => ({
+        ...userWithoutPassword(user),
+        isOwner: isOwnerIdentity(user),
+        isPrimaryOwner: isPrimaryOwnerIdentity(user.email),
+      })));
   });
 
   // Old Admin Orders (keeping for backward compat)
@@ -1498,7 +1520,7 @@ export async function registerRoutes(
     }
     const targetId = Number(req.params.id);
     const target = await storage.getUser(targetId);
-    if (target && isFounderIdentity(target.email || "")) return res.status(403).json({ message: "Cannot modify this account" });
+    if (target && isOwnerIdentity(target)) return res.status(403).json({ message: "Cannot modify this account" });
     const { isBanned, role, email } = req.body;
     if (role !== undefined && !requireOwner(req, res)) return;
     if (email !== undefined && isFounderIdentity(String(email)) && !isOwner(req)) {
@@ -1513,6 +1535,33 @@ export async function registerRoutes(
     const normalizedEmail = parsedEmail?.data.trim().toLowerCase();
     const user = await storage.updateUser(targetId, { isBanned, role, email: normalizedEmail });
     res.json(userWithoutPassword(user));
+  });
+
+  app.post("/api/admin/users/:id/set-owner", async (req, res) => {
+    if (!requirePrimaryOwner(req, res)) return;
+    const targetId = Number(req.params.id);
+    const target = await storage.getUser(targetId);
+    if (!target) return res.status(404).json({ message: "User not found" });
+    if (isPrimaryOwnerIdentity(target.email)) {
+      return res.status(403).json({ message: "The primary owner cannot be changed" });
+    }
+    if (typeof req.body.isOwner !== "boolean") {
+      return res.status(400).json({ message: "isOwner must be true or false" });
+    }
+
+    try {
+      const user = await storage.updateUser(targetId, {
+        isOwner: req.body.isOwner,
+        ...(req.body.isOwner ? { role: "admin" as const, isBanned: false } : {}),
+      });
+      res.json({
+        ...userWithoutPassword(user),
+        isOwner: user.isOwner,
+        isPrimaryOwner: isPrimaryOwnerIdentity(user.email),
+      });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message || "Could not update owner access" });
+    }
   });
 
   app.post("/api/admin/users/:id/balance", async (req, res) => {
@@ -1621,6 +1670,9 @@ export async function registerRoutes(
     try {
       const { code, cartTotal } = req.body;
       if (!code || typeof code !== "string") return res.status(400).json({ message: "Code required" });
+      if (!Number.isSafeInteger(cartTotal) || cartTotal < 0) {
+        return res.status(400).json({ message: "A valid cart total is required" });
+      }
 
       const [dc] = await db.select().from(discountCodes)
         .where(eq(discountCodes.code, code.toUpperCase().trim()));
@@ -2273,16 +2325,21 @@ export async function registerRoutes(
         return res.status(503).json({ message: "Crypto checkout needs a Public App URL in Admin > Integrations." });
       }
       const userId = (req.user as any).id;
-      const { items, cardIds, bulkCardIds, discountCodeId, currencyCode } = req.body;
+       const { items, cardIds, bulkCardIds, discountCodeId, currencyCode } = req.body;
       const cryptoCurrency = await getEnabledCryptoCurrency(currencyCode);
       if (!cryptoCurrency) {
         return res.status(400).json({ message: "Select an enabled crypto currency." });
       }
       requestedCurrency = cryptoCurrency.code;
-      const productItems = (items || []).filter((i: any) => !i.cardId && i.variantId > 0);
-      const cardIdList: number[] = cardIds || [];
+       const productItems = (items || []).filter((i: any) => !i.cardId && i.variantId > 0);
+       const bulkCardIdList: number[] = Array.isArray(bulkCardIds) ? bulkCardIds : [];
+       const cardIdList: number[] = bulkCardIdList.length > 0 ? bulkCardIdList : (Array.isArray(cardIds) ? cardIds : []);
+       const parsedDiscountCodeId = discountCodeId == null || discountCodeId === "" ? null : Number(discountCodeId);
+       if (parsedDiscountCodeId !== null && !Number.isSafeInteger(parsedDiscountCodeId)) {
+         return res.status(400).json({ message: "Invalid discount code" });
+       }
 
-      const order = await storage.createPendingOrder(userId, productItems, cardIdList, discountCodeId ?? null, bulkCardIds || []);
+       const order = await storage.createPendingOrder(userId, productItems, cardIdList, parsedDiscountCodeId, bulkCardIdList);
       pendingOrderId = order.id;
 
       const totalWithFee = order.total;
@@ -2955,9 +3012,10 @@ export async function registerRoutes(
     let pendingOrderId: number | null = null;
     try {
       const userId = (req.user as any).id;
-      const { items, amount, cardIds, bulkCardIds } = req.body;
+       const { items, amount, cardIds, bulkCardIds } = req.body;
       const productItems = (items || []).filter((i: any) => !i.cardId && i.variantId > 0);
-      const cardIdList: number[] = cardIds || [];
+       const bulkCardIdList: number[] = Array.isArray(bulkCardIds) ? bulkCardIds : [];
+       const cardIdList: number[] = bulkCardIdList.length > 0 ? bulkCardIdList : (Array.isArray(cardIds) ? cardIds : []);
       const paymentNote = generateNote();
       const cashappTag = await storage.getSetting("cashapp_tag", "");
       const methods = await storage.getPaymentMethodsConfig();
@@ -2994,7 +3052,11 @@ export async function registerRoutes(
 
       // Checkout mode: reserve stock
       const { discountCodeId } = req.body;
-      const order = await storage.createPendingOrder(userId, productItems, cardIdList, discountCodeId ?? null, bulkCardIds || []);
+      const parsedDiscountCodeId = discountCodeId == null || discountCodeId === "" ? null : Number(discountCodeId);
+      if (parsedDiscountCodeId !== null && !Number.isSafeInteger(parsedDiscountCodeId)) {
+        return res.status(400).json({ message: "Invalid discount code" });
+      }
+      const order = await storage.createPendingOrder(userId, productItems, cardIdList, parsedDiscountCodeId, bulkCardIdList);
       pendingOrderId = order.id;
 
       // Apply configured processing fee as a surcharge the buyer pays on top
