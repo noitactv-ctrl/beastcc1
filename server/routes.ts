@@ -1029,54 +1029,6 @@ export async function registerRoutes(
     }
   });
 
-  // User - Permanently destroy account and user-owned records
-  app.delete("/api/user/account", async (req, res, next) => {
-    if (!req.isAuthenticated()) return res.status(401).json({ message: "Not authenticated" });
-    if (req.body?.confirmation !== "DELETE MY ACCOUNT") {
-      return res.status(400).json({ message: "Type DELETE MY ACCOUNT to confirm permanent deletion." });
-    }
-
-    const userId = Number((req.user as any).id);
-    try {
-      await db.transaction(async (tx) => {
-        await tx.execute(sql`
-          DELETE FROM mail_reads
-          WHERE user_id = ${userId}
-             OR mail_id IN (SELECT id FROM mails WHERE sender_id = ${userId})
-        `);
-        await tx.execute(sql`DELETE FROM mails WHERE sender_id = ${userId}`);
-        await tx.execute(sql`DELETE FROM crypto_payments WHERE user_id = ${userId} OR order_id IN (SELECT id FROM orders WHERE user_id = ${userId})`);
-        await tx.execute(sql`DELETE FROM order_items WHERE order_id IN (SELECT id FROM orders WHERE user_id = ${userId})`);
-        await tx.execute(sql`DELETE FROM orders WHERE user_id = ${userId}`);
-        await tx.execute(sql`DELETE FROM support_tickets WHERE user_id = ${userId}`);
-        await tx.execute(sql`DELETE FROM verifications WHERE user_id = ${userId}`);
-        await tx.execute(sql`DELETE FROM user_ips WHERE user_id = ${userId}`);
-        await tx.execute(sql`DELETE FROM telegram_link_tokens WHERE user_id = ${userId}`);
-        await tx.execute(sql`DELETE FROM telegram_referral_pending WHERE referrer_user_id = ${userId}`);
-        await tx.execute(sql`DELETE FROM seller_applications WHERE user_id = ${userId}`);
-        await tx.execute(sql`DELETE FROM crypto_addresses WHERE user_id = ${userId}`);
-        await tx.execute(sql`DELETE FROM transactions WHERE user_id = ${userId}`);
-        await tx.execute(sql`UPDATE redeem_codes SET used_by = NULL WHERE used_by = ${userId}`);
-        await tx.execute(sql`UPDATE bank_routing_items SET purchased_by = NULL, sold_at = NULL, is_sold = false WHERE purchased_by = ${userId}`);
-        await tx.execute(sql`UPDATE stock_items SET seller_id = NULL WHERE seller_id = ${userId}`);
-        await tx.execute(sql`UPDATE achs SET seller_id = NULL WHERE seller_id = ${userId}`);
-        await tx.execute(sql`DELETE FROM cards WHERE user_id = ${userId}`);
-        await tx.execute(sql`DELETE FROM session WHERE sess->'passport'->>'user' = ${String(userId)}`);
-        await tx.execute(sql`DELETE FROM users WHERE id = ${userId}`);
-      });
-      req.logout((logoutError) => {
-        if (logoutError) return next(logoutError);
-        req.session.destroy((sessionError) => {
-          if (sessionError) return next(sessionError);
-          res.clearCookie("connect.sid");
-          res.json({ success: true });
-        });
-      });
-    } catch (error: any) {
-      next(error);
-    }
-  });
-
   // Admin - Deliver Order
   app.post(api.admin.deliverOrder.path, async (req, res) => {
     if (!req.isAuthenticated() || (req.user as any).role !== 'admin') {
@@ -1929,7 +1881,6 @@ export async function registerRoutes(
       }
     });
 
-    const privilegedCardView = (req.user as any).role === "admin" || Boolean((req.user as any).isWorker);
     const includeNon = (req.user as any).role === "admin";
     const displayRows = includeNon
       ? rows
@@ -1946,35 +1897,14 @@ export async function registerRoutes(
         normalizeCardNumber(r.card_number).substring(0, 6),
         r.bin_data,
       );
-      const publicBinData = {
-        bin: normalizedBinData.bin,
-        bank: normalizedBinData.bank,
-        type: normalizedBinData.type,
-        scheme: normalizedBinData.scheme,
-        brand: normalizedBinData.brand,
-        country: normalizedBinData.country,
-        countryCode: normalizedBinData.countryCode,
-        lookupStatus: normalizedBinData.lookupStatus,
-      };
-      const publicCard = {
-        id: r.id, maskedCard: r.masked_card,
-        country: r.country,
-        price: r.price, hrPercent: r.hr_percent ?? 80, isSold: r.is_sold,
-        createdAt: r.created_at,
-        binData: publicBinData,
-        metadata: { bin: publicBinData.bin },
-        baseId: r.base_id ?? null, baseName: r.base_name ?? null,
-      };
-      if (!privilegedCardView) return publicCard;
       return {
-        ...publicCard,
-        cardNumber: r.card_number,
-        expiry: r.expiry,
-        cvv: r.cvv,
-        extras: r.extras,
-        userId: r.user_id,
+        id: r.id, cardNumber: r.card_number, maskedCard: r.masked_card,
+        expiry: r.expiry, cvv: r.cvv, country: r.country, extras: r.extras,
+        price: r.price, hrPercent: r.hr_percent ?? 80, isSold: r.is_sold,
+        userId: r.user_id, createdAt: r.created_at,
         binData: normalizedBinData,
         metadata: extractCardMetadata(r.extras, r.card_number, normalizedBinData),
+        baseId: r.base_id ?? null, baseName: r.base_name ?? null,
       };
     }));
   });
@@ -2009,11 +1939,6 @@ export async function registerRoutes(
 
     const baseId = req.body.baseId ? Number(req.body.baseId) : undefined;
     const priceCents = Math.round(parseFloat(req.body.price || "0") * 100);
-    const rawHrPercent = req.body.hrPercent ?? req.body.validationRate ?? 80;
-    const hrPercent = Number(rawHrPercent);
-    if (!Number.isInteger(hrPercent) || hrPercent < 0 || hrPercent > 100) {
-      return res.status(400).json({ message: "Validation rate must be a whole number from 0 to 100." });
-    }
     const createdCards: any[] = [];
     const skippedCards: Array<{ entry: number; bin: string; reason: string }> = [];
     let nonCardsFlagged = 0;
@@ -2058,11 +1983,11 @@ export async function registerRoutes(
           maskedCard: masked,
           expiry: "",
           cvv: "",
-           country: storedBinData?.countryCode || storedBinData?.country || extractPostedCardCountry(fullItem) || "Unknown",
+          country: extractPostedCardCountry(fullItem) || storedBinData?.countryCode || storedBinData?.country || "Unknown",
           binData: cardBinData,
           extras: fullItem,
           price: priceCents,
-           hrPercent,
+          hrPercent: 80,
           ...(baseId ? { baseId } : {}),
         } as any);
         createdCards.push({ ...card, binData: cardBinData, metadata: postedMetadata });

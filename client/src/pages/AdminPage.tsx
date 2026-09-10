@@ -28,6 +28,7 @@ import { splitCardEntries } from "@shared/card-input";
 const adminSections = [
   { id: "dashboard", label: "Dashboard", Icon: LayoutDashboard },
   { id: "cards", label: "Cards",      Icon: CreditCard },
+  { id: "products", label: "Products", Icon: Package },
   { id: "orders",   label: "Orders",     Icon: ShoppingBag },
   { id: "cashapp",  label: "Payments",   Icon: DollarSign, ownerOnly: true },
   { id: "deposits", label: "Deposits",   Icon: Wallet },
@@ -74,7 +75,7 @@ export default function AdminPage() {
       <aside className="hidden md:flex w-52 shrink-0 flex-col border-r border-white/10 bg-[#111]">
         <div className="px-5 py-5 border-b border-white/8">
           <p className="text-base font-black text-white">
-             LOOFY
+             BEASTCC
           </p>
           <p className="text-[10px] text-white/40 uppercase tracking-widest font-mono mt-0.5">Admin</p>
         </div>
@@ -122,7 +123,7 @@ export default function AdminPage() {
         <header className="md:hidden shrink-0 flex items-center justify-between px-4 py-3 bg-[#111] border-b border-white/10">
           <div>
             <p className="text-sm font-black text-white">
-                LOOFY
+                BEASTCC
               <span className="ml-1.5 text-xs font-normal text-white/40">Admin</span>
             </p>
             <p className="text-[10px] text-white/40 font-mono">{activeLabel}</p>
@@ -140,6 +141,7 @@ export default function AdminPage() {
           <div className="pixel-page w-full">
             {activeSection === "dashboard"    && <DashboardSection canManageDanger={isOwner} />}
             {activeSection === "cards"        && <AdminCardsSection />}
+            {activeSection === "products"     && <ProductsSection />}
             {activeSection === "orders"       && <OrdersSection />}
             {activeSection === "cashapp"      && <CashAppSection />}
             {activeSection === "users"        && <UsersSection canManageStaff={isOwner} />}
@@ -3371,12 +3373,12 @@ function ProductStockSafetyCard() {
 
 function FeatureTogglesCard() {
   const { toast } = useToast();
-  const { data: features, isLoading: featuresLoading } = useQuery<{ logs: boolean; cards: boolean }>({
+  const { data: features, isLoading: featuresLoading } = useQuery<{ ranks: boolean; logs: boolean; cards: boolean }>({
     queryKey: ["/api/settings/features"],
   });
 
   const toggleFeature = useMutation({
-    mutationFn: async (body: { logs?: boolean; cards?: boolean }) => {
+    mutationFn: async (body: { ranks?: boolean; logs?: boolean; cards?: boolean }) => {
       const res = await apiRequest("POST", "/api/admin/settings/features", body);
       return res.json();
     },
@@ -3388,6 +3390,7 @@ function FeatureTogglesCard() {
   });
 
   const FEATURES = [
+    { key: "ranks" as const, label: "Ranks", desc: "Show/hide the Ranks page and nav link" },
     { key: "logs" as const, label: "Logs", desc: "Show/hide the Logs page and nav link" },
     { key: "cards" as const, label: "Cards", desc: "Show/hide the Cards page and nav link" },
   ];
@@ -4011,7 +4014,6 @@ function AdminCardsSection() {
   const [tab, setTab] = useState<"stock" | "bases">("stock");
   const [fullItem, setFullItem] = useState("");
   const [price, setPrice] = useState("");
-  const [hrPercent, setHrPercent] = useState("80");
   const [selectedBaseId, setSelectedBaseId] = useState<string>("");
   const [refreshProgress, setRefreshProgress] = useState(0);
 
@@ -4054,9 +4056,7 @@ function AdminCardsSection() {
       if (!fullItem.trim()) throw new Error("Full item is required");
       if (!price || parseFloat(price) <= 0) throw new Error("Valid price is required");
       if (!selectedBaseId) throw new Error("Name is required");
-      const parsedHr = Number(hrPercent);
-      if (!Number.isInteger(parsedHr) || parsedHr < 0 || parsedHr > 100) throw new Error("Validation rate must be a whole number from 0 to 100");
-      const body: any = { extras: fullItem.trim(), price: parseFloat(price), hrPercent: parsedHr, baseId: Number(selectedBaseId) };
+      const body: any = { extras: fullItem.trim(), price: parseFloat(price), baseId: Number(selectedBaseId) };
       const res = await apiRequest("POST", "/api/cards", body);
       if (!res.ok) { const err = await res.json(); throw new Error(err.message || "Failed to add card"); }
       return res.json();
@@ -4064,7 +4064,7 @@ function AdminCardsSection() {
     onSuccess: (data: any) => {
       qc.invalidateQueries({ queryKey: ["/api/cards"] });
       qc.invalidateQueries({ queryKey: ["/api/card-bases"] });
-      setFullItem(""); setPrice(""); setHrPercent("80"); setSelectedBaseId("");
+      setFullItem(""); setPrice(""); setSelectedBaseId("");
       const count = data?.count ?? 1;
        const skippedItems = Array.isArray(data?.skipped) ? data.skipped : [];
        const skipped = skippedItems.length;
@@ -4192,25 +4192,9 @@ function AdminCardsSection() {
           />
         </div>
 
-        <div className="space-y-1">
-          <label className="text-[10px] text-white/45 uppercase tracking-widest">Validation Rate (%)</label>
-          <Input
-            value={hrPercent}
-            onChange={e => setHrPercent(e.target.value)}
-            placeholder="80"
-            type="number"
-            min="0"
-            max="100"
-            step="1"
-            className="bg-[#111]/5 border-white/10"
-            data-testid="input-card-validation-rate"
-          />
-          <p className="text-[10px] text-white/30">Shown to shoppers as the expected validation rate for this stock.</p>
-        </div>
-
         <Button
           onClick={() => addMutation.mutate()}
-          disabled={addMutation.isPending || !fullItem.trim() || !price || !selectedBaseId || !hrPercent}
+          disabled={addMutation.isPending || !fullItem.trim() || !price || !selectedBaseId}
           size="sm"
           className="w-full h-8 text-xs"
           data-testid="btn-add-card"
