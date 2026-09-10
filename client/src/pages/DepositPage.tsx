@@ -237,9 +237,8 @@ export default function DepositPage() {
   }
 
   return (
-    <div className="deposit-page pixel-page space-y-5">
-      <div><p className="pixel-label">ACCOUNT FINANCE</p><h1 className="mt-3 text-xl text-white sm:text-2xl">DEPOSIT</h1></div>
-      <div className="pixel-panel bg-[#10215e]">
+    <div className="pixel-page min-h-screen flex flex-col">
+      <div className="pixel-page flex-1 space-y-4">
         {cryptoInvoice ? (
           <CryptoPaymentPanel
             invoice={cryptoInvoice}
@@ -260,7 +259,7 @@ export default function DepositPage() {
         ) : manualResult ? (
           <ManualDepositPanel result={manualResult} onReset={() => { setManualResult(null); setSelectedOption(null); setAmountInput(""); }} />
         ) : (
-          <div className="space-y-4 p-4 sm:p-5">
+          <div className="pixel-panel space-y-4 bg-[#10215e] p-4 sm:p-5">
             <div className="space-y-2">
               <p className="pixel-label">ENTER AMOUNT</p>
               <input
@@ -270,22 +269,9 @@ export default function DepositPage() {
                 value={amountInput}
                  disabled={isPending}
                 onChange={e => handleAmountChange(e.target.value)}
-                 className="pixel-input h-12"
+                className="pixel-input h-12"
                 data-testid="input-amount"
               />
-               <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5">
-                 {[10, 25, 50, 75, 100].map(amount => (
-                   <button
-                     key={amount}
-                     type="button"
-                     onClick={() => handleAmountChange(String(amount))}
-                     disabled={isPending}
-                     className={`border-[3px] border-black px-2 py-2.5 font-mono text-[10px] font-bold transition-colors ${parsedAmount === amount ? "bg-[#ffe177] text-black" : "bg-[#0b1849] text-white hover:bg-[#17337d]"}`}
-                   >
-                     ${amount}
-                   </button>
-                 ))}
-               </div>
               {selectedOption ? (
                 <p className="font-mono text-[10px] leading-relaxed text-[#abbceb]">
                   {selectedOption === "crypto"
@@ -325,14 +311,15 @@ export default function DepositPage() {
                       key={opt.id}
                       onClick={() => handlePaymentMethodSelect(opt.id)}
                       disabled={isPending}
-                       className={`flex min-h-16 flex-col items-center justify-center gap-1 border-[3px] border-black px-2 py-2 transition-all ${isActive ? "bg-[#2555c5] shadow-[2px_2px_0_#ffe177]" : "bg-[#0b1849] hover:bg-[#17337d]"}`}
+                      className={`flex min-h-20 flex-col items-center justify-center gap-1.5 border-[3px] border-black px-2 py-2 transition-all ${isActive ? "bg-[#2555c5] shadow-[2px_2px_0_#ffe177]" : "bg-[#0b1849] hover:bg-[#17337d]"}`}
                       style={{
                         outline: isActive ? `2px solid ${opt.color}` : "none",
                       }}
                       data-testid={`btn-payment-${opt.id}`}
                     >
-                       <span className="font-semibold text-white">{opt.label}</span>
-                       <span className="text-xs text-white/55">{opt.sub}</span>
+                      <opt.Icon className="h-5 w-5 flex-shrink-0" style={{ color: opt.color }} />
+                      <span className="pixel-text text-[8px] text-white">{opt.label}</span>
+                      <span className="font-mono text-[9px] text-white/55">{opt.sub}</span>
                     </button>
                   );
                 })}
@@ -379,6 +366,7 @@ export default function DepositPage() {
         )}
 
       </div>
+
     </div>
   );
 }

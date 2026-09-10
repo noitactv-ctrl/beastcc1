@@ -22,7 +22,6 @@
 - [Refund-only ticket resolution](refund-only-ticket-resolution.md) — support tickets use refund or resolve actions only; replacement is retired from active workflows.
 - [Site cursor states](site-wide-crosshair-cursor.md) — preserve the three original custom cursor states: arrow, hand, and text.
 - [API log privacy](api-log-privacy.md) — never serialize API response bodies into logs because authenticated responses can contain delivered inventory or account data.
-- [Public card listing privacy](public-card-listing-privacy.md) — shopper card responses expose only marketplace metadata; delivery credentials and personal details stay privileged.
 - [Refund atomicity](refund-atomicity.md) — refunds must claim order state and update wallet, ledger, and inventory in one transaction to prevent duplicate credits or partial cleanup.
 - [Telegram rep rewards](telegram-rep-rewards.md) — link codes are one-time and short-lived; profile changes reset the timer, and each reward must atomically update balance and ledger.
 - [VPS bundle security parity](vps-bundle-security-parity.md) — audit the standalone self-host bundle whenever root dependencies or security guidance change; stale bundle metadata can ship old risks.

@@ -3,10 +3,10 @@ import { useOrders } from "@/hooks/use-orders";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
-import { Loader2, ReceiptText, Coins } from "lucide-react";
+import { Loader2, ReceiptText, Coins, Crown } from "lucide-react";
 import { Link } from "wouter";
 
-type TabType = "all" | "cards" | "ach";
+type TabType = "all" | "logs" | "cards" | "ach";
 
 const rankLabels: Record<string, string> = {
   newbie: "Newbie",
@@ -37,6 +37,10 @@ function isCardOrder(order: any): boolean {
     (order.orderId ?? "").startsWith("CARD-") ||
     (!isAchOrder(order) && (order.items ?? []).some((i: any) => i.itemType === "card" || i.cardId != null))
   );
+}
+
+function isLogOrder(order: any): boolean {
+  return (order.items ?? []).some((item: any) => item.itemType === "product");
 }
 
 function isDepositOrder(order: any): boolean {
@@ -71,11 +75,9 @@ function statusBadge(status: string) {
     refunded: { label: "REFUNDED", cls: "bg-red-900/40 text-red-400" },
     replaced: { label: "REPLACED", cls: "bg-blue-900/40 text-blue-400" },
   };
-  const entry = map[status] ?? { label: status?.toUpperCase() ?? "—", cls: "" };
-  const positive = ["fulfilled", "delivering", "completed"].includes(status);
-  const negative = ["failed", "expired", "refunded"].includes(status);
+  const entry = map[status] ?? { label: status?.toUpperCase() ?? "—", cls: "bg-[#0d0d0d] text-white/45" };
   return (
-    <span className={`store-status ${positive ? "store-status-positive" : negative ? "store-status-negative" : ""}`}>
+    <span className={`text-[10px] px-2 py-0.5 rounded font-medium ${entry.cls}`}>
       {entry.label}
     </span>
   );
@@ -132,7 +134,8 @@ export default function OrdersPage() {
 
   const cardOrders = useMemo(() => allOrders.filter(isCardOrder), [allOrders]);
   const achOrders = useMemo(() => allOrders.filter(isAchOrder), [allOrders]);
-  const tabOrders = tab === "cards" ? cardOrders : tab === "ach" ? achOrders : allOrders;
+  const logOrders = useMemo(() => allOrders.filter(isLogOrder), [allOrders]);
+  const tabOrders = tab === "cards" ? cardOrders : tab === "logs" ? logOrders : tab === "ach" ? achOrders : allOrders;
 
   const filteredOrders = useMemo(() => {
     if (!search.trim()) return tabOrders;
@@ -168,6 +171,7 @@ export default function OrdersPage() {
 
   const tabs: { key: TabType; label: string; count: number; href?: string }[] = [
     { key: "all", label: "all", count: allOrders.length },
+    { key: "logs", label: "logs", count: logOrders.length, href: "/logs" },
     { key: "cards", label: "cards", count: cardOrders.length, href: "/cards" },
     ...(achOrders.length > 0 ? [{ key: "ach" as TabType, label: "ach", count: achOrders.length }] : []),
   ];
@@ -176,7 +180,7 @@ export default function OrdersPage() {
     <div className="pixel-page space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl leading-relaxed text-white sm:text-2xl">ORDER HISTORY</h1>
+          <h1 className="text-xl leading-relaxed text-white sm:text-2xl">ORDER &amp; DEPOSIT HISTORY</h1>
           <p className="mt-2 font-mono text-[10px] text-white/45">{formatDateTime(now)}</p>
         </div>
         <div className="flex flex-wrap justify-end gap-2">
@@ -185,19 +189,24 @@ export default function OrdersPage() {
               <Coins className="h-3 w-3" /> ADD BALANCE
             </span>
           </Link>
+          <Link href="/ranks">
+            <span className="pixel-button inline-flex items-center gap-1.5 px-2.5 py-2 text-[8px]">
+              <Crown className="h-3 w-3" /> RANKS
+            </span>
+          </Link>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-0 border-b border-[#e9e8f1] overflow-x-auto pt-1">
+      <div className="flex items-center gap-0 border-b-[3px] border-[#e5be35] overflow-x-auto pt-1">
         {tabs.map(t => (
           <div key={t.key} className="flex items-center gap-1 mr-4">
             <button
               onClick={() => setTab(t.key)}
               className={`px-1 pb-2 text-xs transition-colors border-b-2 -mb-px ${
                 tab === t.key
-                   ? "text-[#5b5bd6] border-[#9a98e8] font-bold"
-                   : "text-white/40 border-transparent hover:text-[#5b5bd6]"
+                  ? "text-[#ffe177] border-[#ffe177] pixel-text text-[8px]"
+                  : "text-white/40 border-transparent hover:text-white/60"
               }`}
               data-testid={`tab-${t.key}`}
             >
@@ -220,7 +229,7 @@ export default function OrdersPage() {
           placeholder="search orders and deposits..."
         value={search}
         onChange={e => setSearch(e.target.value)}
-        className="store-input max-w-sm"
+        className="pixel-input max-w-sm"
         data-testid="input-search-orders"
       />
 
@@ -230,12 +239,12 @@ export default function OrdersPage() {
           <Loader2 className="h-6 w-6 animate-spin text-[#ffe177]" />
         </div>
       ) : filteredOrders.length === 0 ? (
-        <div className="store-card px-5 py-14 text-center">
+        <div className="pixel-panel bg-[#10215e] px-5 py-14 text-center">
           <ReceiptText className="mx-auto h-8 w-8 text-[#ffe177]" />
           <h2 className="mt-5 text-sm leading-relaxed text-white">NO ORDERS YET</h2>
-           <p className="mx-auto mt-3 max-w-md text-xs text-white/55">When you buy cards or add balance, your activity will show up here.</p>
+           <p className="mx-auto mt-3 max-w-md text-xs text-white/55">When you buy logs, cards, or add balance, your activity will show up here.</p>
           <div className="mt-5 flex justify-center">
-              <Link href="/cards" className="pixel-button inline-flex items-center gap-2 px-3 py-3 text-[8px]"><ReceiptText className="h-3 w-3" />BROWSE CARDS</Link>
+             <Link href="/logs" className="pixel-button inline-flex items-center gap-2 px-3 py-3 text-[8px]"><ReceiptText className="h-3 w-3" />BROWSE LOGS</Link>
           </div>
         </div>
       ) : (
@@ -243,6 +252,7 @@ export default function OrdersPage() {
           {filteredOrders.map((order: any) => {
             const isDeposit = isDepositOrder(order);
             const isCard = isCardOrder(order);
+            const isLog = isLogOrder(order);
             const row = (
                 <div className="flex items-start justify-between gap-3">
                   <div className="space-y-1 min-w-0">
@@ -252,9 +262,9 @@ export default function OrdersPage() {
                         isDeposit ? "bg-green-900/30 text-green-300" :
                         isCard ? "bg-blue-900/30 text-blue-400" :
                         isAchOrder(order) ? "bg-cyan-900/30 text-cyan-400" :
-                         "bg-white/10 text-white/60"
+                        isLog ? "bg-red-900/30 text-red-300" : "bg-white/10 text-white/60"
                       }`}>
-                         {isDeposit ? "deposit" : isCard ? "card" : isAchOrder(order) ? "ach" : "product"}
+                        {isDeposit ? "deposit" : isCard ? "card" : isAchOrder(order) ? "ach" : isLog ? "log" : "other"}
                       </span>
                     </div>
                     <p className={`text-xs ${isDeposit ? "text-green-200/70" : "text-white/60"}`}>
@@ -276,7 +286,7 @@ export default function OrdersPage() {
             return isDeposit ? (
               <div
                 key={order.id}
-                className="store-card w-full px-4 py-3 text-left"
+                className="w-full border-[3px] border-[#1d713e] bg-[#10215e] px-4 py-3"
                 data-testid={`row-deposit-${order.id}`}
               >
                 {row}
@@ -285,7 +295,7 @@ export default function OrdersPage() {
               <button
                 key={order.id}
                 onClick={() => setLocation(`/order/${order.orderId}`)}
-                className="store-card w-full px-4 py-3 text-left transition-all hover:bg-[#f7f6ff]"
+                className="w-full border-[3px] border-black bg-[#10215e] px-4 py-3 text-left transition-all hover:bg-[#19377e]"
                 data-testid={`btn-order-${order.id}`}
               >
                 {row}
