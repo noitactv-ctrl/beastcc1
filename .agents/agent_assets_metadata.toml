@@ -336,3 +336,31 @@ mtime_ms = 1789075902910
 storage_uri = "gcs://replit-rams-assets-worf/rams/assets/repl:de412c82-1f7b-4596-a5e9-5be1edbed74d/c98023d7-3ac0-4f79-8750-7042c6c83755/e90afb76-6b3e-47d2-b9e3-25d486257b43"
 storage_version_token = "1789075922319988"
 content_type = "text/markdown"
+
+[[outputs]]
+id = "Pq5xaaahYso50msCFsM97"
+uri = "file://exports/turtlecc-vps-update-latest.tar.gz"
+type = "unspecified"
+title = "TurtleCC VPS update archive"
+description = "Single code-only update package. Upload this one file to the VPS; it preserves the existing .env, database, and attached assets while backing up the database, rebuilding the updated TurtleCC code, and checking /api/health."
+logical_id = "917a63b0-b1a4-4750-a146-170e3669da41"
+content_hash = "sha256:f8f9470602dbde69b9c30f74488ce7f442d205d748921a44965281157ced2e91"
+size = 1501163
+mtime_ms = 1789078014052
+storage_uri = "gcs://replit-rams-assets-worf/rams/assets/repl:de412c82-1f7b-4596-a5e9-5be1edbed74d/917a63b0-b1a4-4750-a146-170e3669da41/7acb1883-dd79-4947-86bb-9f1473292b3a"
+storage_version_token = "1789078106478242"
+content_type = "application/octet-stream"
+
+[[outputs]]
+id = "A1L3lttl5ed6VpzsVn-nJ"
+uri = "file://exports/turtlecc-vps-update-latest.sha256"
+type = "unspecified"
+title = "TurtleCC update checksum"
+description = "SHA-256 checksum for verifying the uploaded update archive on the VPS."
+logical_id = "cd537cff-5a39-4025-bc6e-5ab135e01995"
+content_hash = "sha256:078cf7cf04bdc7c2089ce32b00877e4ad47ff3d8afd71f876588e9b51035848c"
+size = 108
+mtime_ms = 1789078014068
+storage_uri = "gcs://replit-rams-assets-worf/rams/assets/repl:de412c82-1f7b-4596-a5e9-5be1edbed74d/cd537cff-5a39-4025-bc6e-5ab135e01995/48461673-d624-4980-914c-0865cf4c5ffc"
+storage_version_token = "1789078107049225"
+content_type = "application/octet-stream"
